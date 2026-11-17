@@ -1,0 +1,690 @@
+syntax = "proto3";
+
+package serverdog.agent.v1;
+
+option go_package = "github.com/catnapstudio/serverdog-agent/gen/serverdog/agent/v1;agentv1";
+
+// ServerService reports what the server can host. Added in protocol 2.
+service ServerService {
+  rpc GetCapabilities(GetCapabilitiesRequest) returns (GetCapabilitiesResponse);
+  // The server's scheduled jobs: commands cron runs as a user, apart from any site. Added in protocol 5.
+  rpc ListScheduledJobs(ListScheduledJobsRequest) returns (ListScheduledJobsResponse);
+  // Replaces the whole list. Fails with FAILED_PRECONDITION when it changed since expected_revision.
+  rpc PutScheduledJobs(PutScheduledJobsRequest) returns (PutScheduledJobsResponse);
+  // The server's background processes: commands systemd keeps running as a user, apart from any site. Added in
+  // protocol 10.
+  rpc ListBackgroundProcesses(ListBackgroundProcessesRequest) returns (ListBackgroundProcessesResponse);
+  // Replaces the whole list; new and changed ones restart. Fails with FAILED_PRECONDITION when it changed since
+  // expected_revision.
+  rpc PutBackgroundProcesses(PutBackgroundProcessesRequest) returns (PutBackgroundProcessesResponse);
+  // Restarts every copy of one without waiting. Fails with FAILED_PRECONDITION when it's stopped. Added in protocol 19.
+  rpc RestartBackgroundProcess(RestartBackgroundProcessRequest) returns (RestartBackgroundProcessResponse);
+  // Installs the FrankenPHP release this agent pins at /usr/local/bin/frankenphp for Laravel Octane, unless it's there
+  // already: ~175 MB from GitHub, checked against its published SHA-256. Fails with FAILED_PRECONDITION when the
+  // download fails or doesn't match. Added in protocol 19.
+  rpc InstallFrankenPHP(InstallFrankenPHPRequest) returns (InstallFrankenPHPResponse);
+  // The timezone and whether Redis asks for a password. Added in protocol 14.
+  rpc GetServerSettings(GetServerSettingsRequest) returns (GetServerSettingsResponse);
+  // Changes the system timezone; cron restarts so scheduled jobs follow it.
+  rpc SetTimezone(SetTimezoneRequest) returns (SetTimezoneResponse);
+  // Sets Redis's password, or removes it when empty, and restarts Redis.
+  rpc SetRedisPassword(SetRedisPasswordRequest) returns (SetRedisPasswordResponse);
+  // The system services ServerDog installs (Nginx, databases, Redis, PHP-FPM…) and whether each runs. Added in
+  // protocol 15.
+  rpc ListSystemServices(ListSystemServicesRequest) returns (ListSystemServicesResponse);
+  // Starts, stops, restarts or reloads one of them. A failure carries the end of its journal.
+  rpc ControlSystemService(ControlSystemServiceRequest) returns (ControlSystemServiceResponse);
+  // Answers, then reboots the server a moment later.
+  rpc RebootServer(RebootServerRequest) returns (RebootServerResponse);
+  // Load, memory, disk and network traffic over a past span, recorded once a minute for seven days. Added in protocol 12.
+  rpc GetMetricHistory(GetMetricHistoryRequest) returns (GetMetricHistoryResponse);
+  // The server's PHP limits, applied to every installed version and to Nginx. Added in protocol 11.
+  rpc GetPHPSettings(GetPHPSettingsRequest) returns (GetPHPSettingsResponse);
+  // Fails with FAILED_PRECONDITION when they changed since expected_revision.
+  rpc PutPHPSettings(PutPHPSettingsRequest) returns (PutPHPSettingsResponse);
+  // A user's Composer logins: the http-basic part of ~/.composer/auth.json. Added in protocol 11.
+  rpc GetComposerCredentials(GetComposerCredentialsRequest) returns (GetComposerCredentialsResponse);
+  // Replaces them and keeps the rest of the file.
+  rpc PutComposerCredentials(PutComposerCredentialsRequest) returns (PutComposerCredentialsResponse);
+  // A user's npm registry tokens in ~/.npmrc. Added in protocol 11.
+  rpc GetNPMCredentials(GetNPMCredentialsRequest) returns (GetNPMCredentialsResponse);
+  // Replaces them and keeps the file's other lines.
+  rpc PutNPMCredentials(PutNPMCredentialsRequest) returns (PutNPMCredentialsResponse);
+  // The chat webhook deploy and backup outcomes are posted to. Added in protocol 5.
+  rpc GetNotifications(GetNotificationsRequest) returns (GetNotificationsResponse);
+  // Fails with FAILED_PRECONDITION when the settings changed since expected_revision.
+  rpc PutNotifications(PutNotificationsRequest) returns (PutNotificationsResponse);
+  // Posts a test message to webhook_url, saved or not.
+  rpc TestNotifications(TestNotificationsRequest) returns (TestNotificationsResponse);
+  // The logs on this server: its own (journal, Nginx, PHP-FPM, database) and each site's. Added in protocol 6.
+  rpc ListLogs(ListLogsRequest) returns (ListLogsResponse);
+  // The last lines of one, oldest first. Fails with NOT_FOUND for an id ListLogs didn't return.
+  rpc ReadLog(ReadLogRequest) returns (ReadLogResponse);
+  // The ufw rules added in the app, and the others listed read-only. Added in protocol 6.
+  rpc GetFirewall(GetFirewallRequest) returns (GetFirewallResponse);
+  // Replaces the app's rules. Fails with FAILED_PRECONDITION when they changed since expected_revision.
+  rpc PutFirewall(PutFirewallRequest) returns (PutFirewallResponse);
+  // The SSH keys added in the app to root's and the site users' authorized_keys, and the others. Added in protocol 6.
+  rpc GetSSHKeys(GetSSHKeysRequest) returns (GetSSHKeysResponse);
+  // Replaces the app's keys. Fails with FAILED_PRECONDITION when they changed since expected_revision.
+  rpc PutSSHKeys(PutSSHKeysRequest) returns (PutSSHKeysResponse);
+  // The installed and installable PHP versions. Added in protocol 6.
+  rpc GetPHPVersions(GetPHPVersionsRequest) returns (GetPHPVersionsResponse);
+  // Installs a version; it takes a minute or two. Installing an installed version does nothing.
+  rpc InstallPHPVersion(InstallPHPVersionRequest) returns (InstallPHPVersionResponse);
+  // Fails with INVALID_ARGUMENT for a version a site runs on, the php command's, or the last one.
+  rpc RemovePHPVersion(RemovePHPVersionRequest) returns (RemovePHPVersionResponse);
+  // Points the php command at an installed version.
+  rpc SetCLIPHPVersion(SetCLIPHPVersionRequest) returns (SetCLIPHPVersionResponse);
+  // The private network: the address the database, Redis, Memcached and Meilisearch also listen on, and the servers
+  // allowed to reach them. Added in protocol 9.
+  rpc GetNetwork(GetNetworkRequest) returns (GetNetworkResponse);
+  // Moves the services to the address and replaces the servers allowed in. Fails with FAILED_PRECONDITION when the
+  // settings changed since expected_revision. A service that doesn't come back gets its previous settings again.
+  rpc PutNetwork(PutNetworkRequest) returns (PutNetworkResponse);
+  // Dials address:port over TCP from this server, within 5 seconds. Added in protocol 9.
+  rpc CheckConnection(CheckConnectionRequest) returns (CheckConnectionResponse);
+  // Automatic updates: their settings, unattended-upgrades' last run, pending updates and whether an installed one
+  // waits for a restart. Added in protocol 18.
+  rpc GetUpdates(GetUpdatesRequest) returns (GetUpdatesResponse);
+  // Fails with FAILED_PRECONDITION when they changed since expected_revision.
+  rpc PutUpdateSettings(PutUpdateSettingsRequest) returns (PutUpdateSettingsResponse);
+  // What is wrong on the server right now. The agent looks only when asked and keeps the answer for a minute.
+  // Added in protocol 19.
+  rpc GetInsights(GetInsightsRequest) returns (GetInsightsResponse);
+  // Applies a fixable insight's fix. Fails with FAILED_PRECONDITION when the insight is gone or has no fix.
+  rpc FixInsight(FixInsightRequest) returns (FixInsightResponse);
+  // Meilisearch's settings file, without the master key and listen address ServerDog manages. Added in protocol 23.
+  rpc GetMeilisearchConfig(GetMeilisearchConfigRequest) returns (GetMeilisearchConfigResponse);
+  // Saves the settings and restarts Meilisearch; if it doesn't come back, the previous file returns. Fails with
+  // INVALID_ARGUMENT for a line that isn't a MEILI_ setting or that sets a managed one.
+  rpc PutMeilisearchConfig(PutMeilisearchConfigRequest) returns (PutMeilisearchConfigResponse);
+  // Meilisearch's API keys, read with its master key.
+  rpc ListMeilisearchKeys(ListMeilisearchKeysRequest) returns (ListMeilisearchKeysResponse);
+}
+
+// One finding. The app owns the words; it hides kinds it doesn't know.
+message Insight {
+  // E.g. "php_workers_exhausted", "service_failed", "no_swap".
+  string kind = 1;
+  // What it is about: a site id, a systemd unit or a PHP version; empty for the server itself.
+  string subject = 2;
+  // What was measured, e.g. limit=10 and suggested=20.
+  map<string, string> values = 3;
+  // Whether FixInsight has a fix for it.
+  bool fixable = 4;
+}
+
+message GetInsightsRequest {
+  // Look again instead of returning an answer up to a minute old.
+  bool refresh = 1;
+}
+
+message GetInsightsResponse {
+  repeated Insight insights = 1;
+  // Unix seconds of the scan the insights come from.
+  int64 scanned_at = 2;
+  // A check couldn't look (a command failed, or the scan ran out of time), so an insight may be missing.
+  bool partial = 3;
+}
+
+message FixInsightRequest {
+  string kind = 1;
+  string subject = 2;
+  // Who asked, for the activity log, e.g. the Mac's name.
+  string actor = 3;
+}
+
+message FixInsightResponse {}
+
+message FirewallRule {
+  string id = 1;
+  string name = 2;
+  // "allow" or "deny".
+  string action = 3;
+  // "8080", or a range "8000:8010" (which needs a protocol).
+  string port = 4;
+  // "tcp", "udp", or empty for both.
+  string protocol = 5;
+  // An address or a CIDR network; empty is anywhere.
+  string from = 6;
+}
+
+message GetFirewallRequest {}
+
+message GetFirewallResponse {
+  bool installed = 1;
+  bool active = 2;
+  repeated FirewallRule rules = 3;
+  uint64 revision = 4;
+  // Rules ServerDog didn't add, as ufw prints them ("allow 22/tcp"). Never changed by the agent.
+  repeated string other_rules = 5;
+}
+
+message PutFirewallRequest {
+  repeated FirewallRule rules = 1;
+  uint64 expected_revision = 2;
+}
+
+message PutFirewallResponse {
+  uint64 revision = 1;
+}
+
+message SSHKey {
+  string id = 1;
+  string name = 2;
+  // "root", or a site's user.
+  string user = 3;
+  // One authorized_keys line without options, like the contents of id_ed25519.pub.
+  string public_key = 4;
+}
+
+message OtherSSHKey {
+  string user = 1;
+  string fingerprint = 2;
+  string comment = 3;
+}
+
+message GetSSHKeysRequest {}
+
+message GetSSHKeysResponse {
+  repeated SSHKey keys = 1;
+  uint64 revision = 2;
+  repeated OtherSSHKey other_keys = 3;
+  // The accounts keys can go to: root, then the sites' users.
+  repeated string users = 4;
+}
+
+message PutSSHKeysRequest {
+  repeated SSHKey keys = 1;
+  uint64 expected_revision = 2;
+}
+
+message PutSSHKeysResponse {
+  uint64 revision = 1;
+}
+
+message PHPVersionUse {
+  string version = 1;
+  // The sites' names.
+  repeated string sites = 2;
+}
+
+message GetPHPVersionsRequest {}
+
+message GetPHPVersionsResponse {
+  // Newest first.
+  repeated string installed = 1;
+  repeated string available = 2;
+  // The version the php command runs; empty when it isn't one ServerDog knows.
+  string cli = 3;
+  repeated PHPVersionUse used_by = 4;
+}
+
+message InstallPHPVersionRequest {
+  string version = 1;
+}
+
+message InstallPHPVersionResponse {}
+
+message RemovePHPVersionRequest {
+  string version = 1;
+}
+
+message RemovePHPVersionResponse {}
+
+message SetCLIPHPVersionRequest {
+  string version = 1;
+}
+
+message SetCLIPHPVersionResponse {}
+
+message LogSource {
+  string id = 1;
+  string title = 2;
+  // "Server", or the site's name.
+  string group = 3;
+}
+
+message ListLogsRequest {}
+
+message ListLogsResponse {
+  repeated LogSource sources = 1;
+}
+
+message ReadLogRequest {
+  string id = 1;
+  // At most 2000; 0 reads 2000.
+  uint32 lines = 2;
+}
+
+message ReadLogResponse {
+  string text = 1;
+}
+
+message Notifications {
+  // A Slack or Discord incoming webhook, or anything that takes {"text"} or {"content"} JSON. Empty sends nothing.
+  string webhook_url = 1;
+  // Also post successful deploys. Failed deploys and backups are always posted.
+  bool on_success = 2;
+  // Post when disk use, memory use or the 5-minute load per CPU stays at or above this percentage for 5 minutes, and
+  // again when it drops back below. 0 is off. Protocol 8.
+  uint32 disk_percent = 3;
+  uint32 memory_percent = 4;
+  uint32 load_percent = 5;
+}
+
+message GetNotificationsRequest {}
+
+message GetNotificationsResponse {
+  Notifications notifications = 1;
+  uint64 revision = 2;
+}
+
+message PutNotificationsRequest {
+  Notifications notifications = 1;
+  uint64 expected_revision = 2;
+}
+
+message PutNotificationsResponse {
+  uint64 revision = 1;
+}
+
+message TestNotificationsRequest {
+  string webhook_url = 1;
+}
+
+message TestNotificationsResponse {}
+
+message ScheduledJob {
+  // 12 characters of lowercase base32, chosen by the app.
+  string id = 1;
+  string name = 2;
+  // One shell line, run by /bin/sh in the user's home.
+  string command = 3;
+  // An existing user, such as root or serverdog.
+  string user = 4;
+  // Five cron fields ("*/5 * * * *") or a macro such as @daily.
+  string schedule = 5;
+  // The last lines the job wrote, newest last, as timestamped journal lines. Ignored by PutScheduledJobs.
+  string log = 6;
+  // The latest run, from protocol 16: RFC 3339 times, empty when it hasn't run lately. Ignored by PutScheduledJobs.
+  string last_started_at = 7;
+  string last_finished_at = 8;
+  int32 last_exit_code = 9;
+  // Started without an exit yet: still going, or killed with the server.
+  bool running = 10;
+}
+
+message ListScheduledJobsRequest {
+  // Leave each job's log out; its last run is still reported. Protocol 19.
+  bool without_logs = 1;
+}
+
+message ListScheduledJobsResponse {
+  repeated ScheduledJob jobs = 1;
+  // 0 before the first save.
+  uint64 revision = 2;
+}
+
+message PutScheduledJobsRequest {
+  repeated ScheduledJob jobs = 1;
+  uint64 expected_revision = 2;
+}
+
+message PutScheduledJobsResponse {
+  uint64 revision = 1;
+}
+
+message BackgroundProcess {
+  // 12 characters of lowercase base32, chosen by the app.
+  string id = 1;
+  string name = 2;
+  // One line, run by /bin/sh, e.g. "php8.4 artisan reverb:start".
+  string command = 3;
+  // An existing user, such as root or serverdog.
+  string user = 4;
+  // An existing absolute folder it runs in; empty is the user's home.
+  string directory = 5;
+  // How many copies run, 1 to 16.
+  uint32 count = 6;
+  // How many copies are running now. Ignored by PutBackgroundProcesses.
+  uint32 running = 7;
+  // The copies' last lines from the journal, oldest first. Ignored by PutBackgroundProcesses.
+  string log = 8;
+  // Stopped ones stay off until saved with stopped false. Protocol 19.
+  bool stopped = 9;
+  // How long a copy may take to stop before it's killed, 1 to 3600 seconds; 0 means 60. Protocol 19.
+  uint32 stop_seconds = 10;
+}
+
+message ListBackgroundProcessesRequest {
+  // Return the states only, without reading each process's journal. Protocol 19.
+  bool without_logs = 1;
+}
+
+message ListBackgroundProcessesResponse {
+  repeated BackgroundProcess processes = 1;
+  // 0 before the first save.
+  uint64 revision = 2;
+}
+
+message PutBackgroundProcessesRequest {
+  repeated BackgroundProcess processes = 1;
+  uint64 expected_revision = 2;
+}
+
+message PutBackgroundProcessesResponse {
+  uint64 revision = 1;
+}
+
+message RestartBackgroundProcessRequest {
+  string id = 1;
+}
+
+message RestartBackgroundProcessResponse {}
+
+message InstallFrankenPHPRequest {}
+
+message InstallFrankenPHPResponse {
+  // e.g. "1.13.5".
+  string version = 1;
+}
+
+message PHPSettings {
+  // upload_max_filesize, post_max_size and Nginx's client_max_body_size, 1 to 4096.
+  uint32 upload_mb = 1;
+  // max_execution_time for web requests, 1 to 3600; Nginx waits at least as long.
+  uint32 max_execution_seconds = 2;
+  // memory_limit for web requests and the CLI, 32 to 16384.
+  uint32 memory_mb = 3;
+  // opcache.validate_timestamps = 0; each PHP deploy then reloads PHP-FPM.
+  bool opcache_frozen = 4;
+}
+
+message GetPHPSettingsRequest {}
+
+message GetPHPSettingsResponse {
+  PHPSettings settings = 1;
+  // 0 before the first save; the settings are then PHP's defaults.
+  uint64 revision = 2;
+}
+
+message PutPHPSettingsRequest {
+  PHPSettings settings = 1;
+  uint64 expected_revision = 2;
+}
+
+message PutPHPSettingsResponse {
+  uint64 revision = 1;
+}
+
+message ComposerCredential {
+  // e.g. "nova.laravel.com".
+  string host = 1;
+  string username = 2;
+  string password = 3;
+}
+
+message GetComposerCredentialsRequest {
+  // A user whose home is in /home.
+  string user = 1;
+}
+
+message GetComposerCredentialsResponse {
+  repeated ComposerCredential credentials = 1;
+}
+
+message PutComposerCredentialsRequest {
+  string user = 1;
+  repeated ComposerCredential credentials = 2;
+}
+
+message PutComposerCredentialsResponse {}
+
+message NPMCredential {
+  // Without a scheme, e.g. "registry.npmjs.org" or "npm.pkg.github.com".
+  string registry = 1;
+  string token = 2;
+}
+
+message GetNPMCredentialsRequest {
+  string user = 1;
+}
+
+message GetNPMCredentialsResponse {
+  repeated NPMCredential credentials = 1;
+}
+
+message PutNPMCredentialsRequest {
+  string user = 1;
+  repeated NPMCredential credentials = 2;
+}
+
+message PutNPMCredentialsResponse {}
+
+message GetServerSettingsRequest {}
+
+message GetServerSettingsResponse {
+  // An IANA zone, like Europe/Paris.
+  string timezone = 1;
+  bool redis_installed = 2;
+  // Empty when Redis takes any local client.
+  string redis_password = 3;
+}
+
+message SetTimezoneRequest {
+  string timezone = 1;
+}
+
+message SetTimezoneResponse {}
+
+message SetRedisPasswordRequest {
+  // 16 to 128 letters and digits, or empty for none.
+  string password = 1;
+}
+
+message SetRedisPasswordResponse {}
+
+message ListSystemServicesRequest {}
+
+message SystemService {
+  // The systemd unit without .service, like nginx or php8.4-fpm.
+  string unit = 1;
+  // systemd's ActiveState: active, inactive, failed, activating, deactivating or reloading.
+  string state = 2;
+  // Whether it rereads its config without dropping connections (Nginx and PHP-FPM).
+  bool reloadable = 3;
+}
+
+message ListSystemServicesResponse {
+  repeated SystemService services = 1;
+}
+
+enum ServiceAction {
+  SERVICE_ACTION_UNSPECIFIED = 0;
+  SERVICE_ACTION_START = 1;
+  SERVICE_ACTION_STOP = 2;
+  SERVICE_ACTION_RESTART = 3;
+  SERVICE_ACTION_RELOAD = 4;
+}
+
+message ControlSystemServiceRequest {
+  string unit = 1;
+  ServiceAction action = 2;
+}
+
+message ControlSystemServiceResponse {}
+
+message RebootServerRequest {}
+
+message RebootServerResponse {}
+
+message GetMetricHistoryRequest {
+  // How far back, from an hour to seven days.
+  uint32 span_seconds = 1;
+}
+
+message MetricSample {
+  // Unix seconds at the start of the sample's step.
+  int64 time = 1;
+  double load1 = 2;
+  uint64 mem_used = 3;
+  uint64 disk_used = 4;
+  // Bytes per second over every interface but loopback.
+  uint64 rx_bytes_per_second = 5;
+  uint64 tx_bytes_per_second = 6;
+}
+
+message GetMetricHistoryResponse {
+  // Oldest first; each averages step_seconds of minutes, at most 360 samples.
+  repeated MetricSample samples = 1;
+  uint32 step_seconds = 2;
+}
+
+message GetCapabilitiesRequest {}
+
+message GetCapabilitiesResponse {
+  // Installed PHP-FPM versions, newest first, e.g. "8.4".
+  repeated string php_versions = 1;
+  // "mysql", "mariadb", "postgres", or empty when no database is installed.
+  string database_engine = 2;
+  string database_version = 3;
+  // e.g. "v24.11.0"; empty when Node.js isn't installed.
+  string node_version = 4;
+  // e.g. "1.24.0"; empty when Nginx isn't installed.
+  string nginx_version = 5;
+  // Public IPv4 and IPv6 addresses of the server's interfaces.
+  repeated string public_addresses = 6;
+  // True when the Node port guard is attached and no ephemeral port falls in the Node range (20000-29999), so no other
+  // user can take a Node site's port. Added in protocol 3.
+  bool port_guard = 7;
+}
+
+message NetworkPeer {
+  string id = 1;
+  // How the app names the server; for display only.
+  string name = 2;
+  // Its private IPv4 address.
+  string address = 3;
+}
+
+message NetworkAddress {
+  string address = 1;
+  // "eth1", "tailscale0", "wg0"…
+  string interface = 2;
+}
+
+message NetworkService {
+  // "mysql", "mariadb", "postgres", "redis", "memcached" or "meilisearch".
+  string name = 1;
+  uint32 port = 2;
+}
+
+message GetNetworkRequest {}
+
+message GetNetworkResponse {
+  // Empty while networking is off.
+  string address = 1;
+  repeated NetworkPeer peers = 2;
+  uint64 revision = 3;
+  // The server's private IPv4 addresses.
+  repeated NetworkAddress candidates = 4;
+  // The services that listen on the address while networking is on, and whose ports the peers may reach.
+  repeated NetworkService services = 5;
+  // False when ufw is off, so every machine on the private network reaches the services.
+  bool firewall_active = 6;
+  // Rules added outside ServerDog that let everything in on the address's interface, as ufw prints them.
+  repeated string broad_rules = 7;
+}
+
+message PutNetworkRequest {
+  // One of the candidates, or empty to turn networking off (which needs no peers).
+  string address = 1;
+  repeated NetworkPeer peers = 2;
+  uint64 expected_revision = 3;
+}
+
+message PutNetworkResponse {
+  uint64 revision = 1;
+}
+
+message CheckConnectionRequest {
+  string address = 1;
+  uint32 port = 2;
+}
+
+message CheckConnectionResponse {
+  // "connected", "refused", "timeout" or "unreachable".
+  string result = 1;
+  // The error, for "unreachable".
+  string detail = 2;
+}
+
+message UpdateSettings {
+  // Also update the database from its vendor's archive (MariaDB, MySQL, PostgreSQL), which restarts it for a moment.
+  // PHP and Node.js always are; Ubuntu's own packages get security updates.
+  bool databases = 1;
+  // Restart the server at reboot_time when an installed update needs it.
+  bool automatic_reboot = 2;
+  // "HH:MM" in the server's timezone.
+  string reboot_time = 3;
+}
+
+message GetUpdatesRequest {}
+
+message GetUpdatesResponse {
+  UpdateSettings settings = 1;
+  // 0 before the first save; the settings are then the defaults (databases on, no restarts, 04:00).
+  uint64 revision = 2;
+  // Unix seconds of unattended-upgrades' last run; 0 when it never ran.
+  int64 last_run = 3;
+  // Packages with an update, and how many of them come from Ubuntu's security archive.
+  uint32 pending = 4;
+  uint32 security_pending = 5;
+  // Unix seconds since an installed update has waited for a restart; 0 when none does.
+  int64 reboot_required_since = 6;
+  // The packages that asked for it.
+  repeated string reboot_packages = 7;
+}
+
+message PutUpdateSettingsRequest {
+  UpdateSettings settings = 1;
+  uint64 expected_revision = 2;
+}
+
+message PutUpdateSettingsResponse {
+  uint64 revision = 1;
+}
+
+message GetMeilisearchConfigRequest {}
+
+message GetMeilisearchConfigResponse {
+  bool installed = 1;
+  // MEILI_ settings, one per line, with comments. Empty when not installed.
+  string config = 2;
+}
+
+message PutMeilisearchConfigRequest {
+  string config = 1;
+}
+
+message PutMeilisearchConfigResponse {}
+
+message ListMeilisearchKeysRequest {}
+
+message MeilisearchKey {
+  string name = 1;
+  string description = 2;
+  string key = 3;
+  // Like search or documents.add; * for all.
+  repeated string actions = 4;
+  // Index names; * for all.
+  repeated string indexes = 5;
+  // RFC 3339, or empty when it never expires.
+  string expires_at = 6;
+}
+
+message ListMeilisearchKeysResponse {
+  repeated MeilisearchKey keys = 1;
+}

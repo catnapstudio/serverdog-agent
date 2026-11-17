@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package serverdog.agent.v1;
+
+option go_package = "github.com/catnapstudio/serverdog-agent/gen/serverdog/agent/v1;agentv1";
+
+// DomainService tells the app which DNS records a site's domains need and whether they point at this server.
+service DomainService {
+  rpc CheckDns(CheckDnsRequest) returns (CheckDnsResponse);
+}
+
+message CheckDnsRequest {
+  string site_id = 1;
+  // One of the site's domains; empty checks them all.
+  string domain = 2;
+}
+
+message DnsRecord {
+  // "A" or "AAAA".
+  string type = 1;
+  // e.g. "orchard.com", "www.orchard.com", "*.orchard.com".
+  string name = 2;
+  // The server address the record should hold.
+  string value = 3;
+}
+
+message DnsName {
+  string name = 1;
+  // What the name resolves to now, asked of its zone's own nameservers like Let's Encrypt does.
+  repeated string answers = 2;
+  // True when it resolves and every answer is one of the server's addresses.
+  bool points_here = 3;
+  // True when an HTTP request to the name reaches this server, directly or through a proxy such as Cloudflare's.
+  // This is what Let's Encrypt checks. Always false for a wildcard, which can't be checked over HTTP.
+  bool reaches_here = 4;
+}
+
+message DomainDns {
+  string domain = 1;
+  repeated DnsRecord records = 2;
+  repeated DnsName names = 3;
+  // True when every name on the domain's certificate reaches this server (what Let's Encrypt needs).
+  bool reachable = 4;
+}
+
+message CheckDnsResponse {
+  repeated DomainDns domains = 1;
+}

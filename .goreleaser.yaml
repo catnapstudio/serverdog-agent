@@ -1,0 +1,21 @@
+version: 2
+project_name: serverdog-agent
+builds:
+  - main: ./cmd/serverdog-agent
+    binary: serverdog-agent
+    env:
+      - CGO_ENABLED=0
+    goos: [linux]
+    goarch: [amd64, arm64]
+    flags: [-trimpath]
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    ldflags:
+      - -s -w
+      - -X github.com/catnapstudio/serverdog-agent/internal/version.Version={{ .Tag }}
+      - -X github.com/catnapstudio/serverdog-agent/internal/version.Commit={{ .ShortCommit }}
+      - -X github.com/catnapstudio/serverdog-agent/internal/version.BuiltAt={{ .CommitDate }}
+archives:
+  - formats: [binary]
+    name_template: "{{ .Binary }}-{{ .Os }}-{{ .Arch }}"
+checksum:
+  name_template: SHA256SUMS

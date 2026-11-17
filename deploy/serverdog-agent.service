@@ -1,0 +1,18 @@
+[Unit]
+Description=ServerDog agent
+Documentation=https://github.com/catnapstudio/serverdog-agent
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/serverdog-agent --socket /run/serverdog/agent.sock --state-dir /var/lib/serverdog
+Restart=always
+RestartSec=2
+RuntimeDirectory=serverdog
+RuntimeDirectoryMode=0700
+StateDirectory=serverdog
+StateDirectoryMode=0700
+
+[Install]
+WantedBy=multi-user.target

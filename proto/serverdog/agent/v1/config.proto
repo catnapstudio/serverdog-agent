@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package serverdog.agent.v1;
+
+option go_package = "github.com/catnapstudio/serverdog-agent/gen/serverdog/agent/v1;agentv1";
+
+// ConfigService reads and writes a site's environment file and Nginx config. Added in protocol 2.
+service ConfigService {
+  rpc GetEnv(GetEnvRequest) returns (GetEnvResponse);
+  rpc PutEnv(PutEnvRequest) returns (PutEnvResponse);
+  rpc GetNginxConfig(GetNginxConfigRequest) returns (GetNginxConfigResponse);
+  // Saves a hand-edited config and marks the site customised.
+  rpc PutNginxConfig(PutNginxConfigRequest) returns (PutNginxConfigResponse);
+  rpc ResetNginxConfig(ResetNginxConfigRequest) returns (ResetNginxConfigResponse);
+}
+
+message GetEnvRequest {
+  string site_id = 1;
+}
+
+message GetEnvResponse {
+  string content = 1;
+  // Hex sha256 of content.
+  string sha256 = 2;
+}
+
+message PutEnvRequest {
+  string site_id = 1;
+  string content = 2;
+  // The sha256 of the content the user started editing.
+  string expected_sha256 = 3;
+  string actor = 4;
+}
+
+message PutEnvResponse {
+  string sha256 = 1;
+}
+
+message GetNginxConfigRequest {
+  string site_id = 1;
+}
+
+message GetNginxConfigResponse {
+  string content = 1;
+  string sha256 = 2;
+  bool customised = 3;
+}
+
+message PutNginxConfigRequest {
+  string site_id = 1;
+  string content = 2;
+  string expected_sha256 = 3;
+  string actor = 4;
+}
+
+message PutNginxConfigResponse {
+  string sha256 = 1;
+}
+
+message ResetNginxConfigRequest {
+  string site_id = 1;
+  string actor = 2;
+}
+
+message ResetNginxConfigResponse {
+  string content = 1;
+  string sha256 = 2;
+}

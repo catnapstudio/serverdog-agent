@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+package serverdog.agent.v1;
+
+option go_package = "github.com/catnapstudio/serverdog-agent/gen/serverdog/agent/v1;agentv1";
+
+// DatabaseService creates a database and a user that can access only it, on the server's database engine.
+service DatabaseService {
+  rpc CreateDatabase(CreateDatabaseRequest) returns (CreateDatabaseResponse);
+  // The databases and users, without the engine's own. Added in protocol 6.
+  rpc ListDatabases(ListDatabasesRequest) returns (ListDatabasesResponse);
+  rpc DeleteDatabase(DeleteDatabaseRequest) returns (DeleteDatabaseResponse);
+  // Drops the user from every host it has.
+  rpc DeleteDatabaseUser(DeleteDatabaseUserRequest) returns (DeleteDatabaseUserResponse);
+  rpc SetDatabaseUserPassword(SetDatabaseUserPasswordRequest) returns (SetDatabaseUserPasswordResponse);
+  // A new user who can only read one existing database. Added in protocol 14.
+  rpc CreateReadOnlyDatabaseUser(CreateReadOnlyDatabaseUserRequest) returns (CreateReadOnlyDatabaseUserResponse);
+}
+
+message ListDatabasesRequest {}
+
+message ListDatabasesResponse {
+  // "mysql", "mariadb" or "postgres".
+  string engine = 1;
+  repeated string databases = 2;
+  repeated string users = 3;
+}
+
+message DeleteDatabaseRequest {
+  string name = 1;
+}
+
+message DeleteDatabaseResponse {}
+
+message DeleteDatabaseUserRequest {
+  string user = 1;
+}
+
+message DeleteDatabaseUserResponse {}
+
+message SetDatabaseUserPasswordRequest {
+  string user = 1;
+  // Letters and digits, 16–128 characters. Never logged or stored by the agent.
+  string password = 2;
+}
+
+message SetDatabaseUserPasswordResponse {}
+
+message CreateDatabaseRequest {
+  // The site the database is for; required when write_env is true.
+  string site_id = 1;
+  string name = 2;
+  string user = 3;
+  // Generated on the Mac (letters and digits, 16–128 characters) and kept in its Keychain. Never logged or stored by the agent.
+  string password = 4;
+  // Set DB_* in the site's environment file.
+  bool write_env = 5;
+  string actor = 6;
+  // Servers that may log in too, by their private address; each must be one of the network's peers. The response's
+  // host is then this server's private address. Added in protocol 9.
+  repeated string allowed_from = 7;
+}
+
+message CreateDatabaseResponse {
+  // "mysql", "mariadb" or "postgres".
+  string engine = 1;
+  string name = 2;
+  string user = 3;
+  string host = 4;
+  uint32 port = 5;
+}
+
+message CreateReadOnlyDatabaseUserRequest {
+  string database = 1;
+  string user = 2;
+  // 16 to 128 letters and digits.
+  string password = 3;
+}
+
+message CreateReadOnlyDatabaseUserResponse {}

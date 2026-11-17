@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package serverdog.agent.v1;
+
+option go_package = "github.com/catnapstudio/serverdog-agent/gen/serverdog/agent/v1;agentv1";
+
+// AgentService is served by serverdog-agent on /run/serverdog/agent.sock.
+// Changes within v1 are additive only.
+service AgentService {
+  rpc GetVersion(GetVersionRequest) returns (GetVersionResponse);
+  rpc Health(HealthRequest) returns (HealthResponse);
+  rpc GetSystemInfo(GetSystemInfoRequest) returns (GetSystemInfoResponse);
+}
+
+message GetVersionRequest {}
+
+message GetVersionResponse {
+  string version = 1;
+  string commit = 2;
+  string built_at = 3;
+  uint32 protocol_version = 4;
+}
+
+message HealthRequest {}
+
+message HealthResponse {
+  bool ok = 1;
+  // Seconds since the agent process started.
+  uint64 uptime_seconds = 2;
+}
+
+message GetSystemInfoRequest {}
+
+message GetSystemInfoResponse {
+  string os = 1;
+  string os_version = 2;
+  string kernel = 3;
+  string arch = 4;
+  uint32 cpu_count = 5;
+  string cpu_model = 6;
+  uint64 mem_total = 7;
+  uint64 mem_used = 8;
+  uint64 disk_total = 9;
+  uint64 disk_used = 10;
+  double load1 = 11;
+  double load5 = 12;
+  double load15 = 13;
+  // Seconds since the server booted.
+  uint64 uptime_seconds = 14;
+}

@@ -1,0 +1,16 @@
+# Managed by ServerDog. Keeps Node sites' ports for their own users.
+[Unit]
+Description=ServerDog port guard
+Documentation=https://github.com/catnapstudio/serverdog-agent
+DefaultDependencies=no
+After=local-fs.target
+Before=sysinit.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+TimeoutStartSec=30
+ExecStart=/usr/local/bin/serverdog-agent port-guard
+
+[Install]
+WantedBy=sysinit.target

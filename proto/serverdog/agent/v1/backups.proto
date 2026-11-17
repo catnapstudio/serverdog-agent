@@ -1,0 +1,98 @@
+syntax = "proto3";
+
+package serverdog.agent.v1;
+
+option go_package = "github.com/catnapstudio/serverdog-agent/gen/serverdog/agent/v1;agentv1";
+
+// BackupService dumps the server's databases on a schedule to S3-compatible storage. Added in protocol 5.
+service BackupService {
+  rpc ListBackupPlans(ListBackupPlansRequest) returns (ListBackupPlansResponse);
+  // Replaces the whole list. Fails with FAILED_PRECONDITION when it changed since expected_revision.
+  rpc PutBackupPlans(PutBackupPlansRequest) returns (PutBackupPlansResponse);
+  // Uploads and deletes a small object, as a backup would.
+  rpc TestBackupStorage(TestBackupStorageRequest) returns (TestBackupStorageResponse);
+  // Starts a backup now; it runs in the background. Its run shows in ListBackupPlans.
+  rpc RunBackup(RunBackupRequest) returns (RunBackupResponse);
+}
+
+message BackupStorage {
+  // e.g. "https://s3.eu-central-1.amazonaws.com"; a bare host means https. Plain http only for this server.
+  string endpoint = 1;
+  string region = 2;
+  string bucket = 3;
+  // The folder in the bucket; empty is the root.
+  string prefix = 4;
+  string access_key = 5;
+  // Never returned. Empty on PutBackupPlans keeps the plan's current secret key.
+  string secret_key = 6;
+  // Whether the agent has a secret key for the plan. Set by ListBackupPlans.
+  bool has_secret_key = 7;
+}
+
+message BackupRun {
+  string id = 1;
+  // "running", "succeeded" or "failed".
+  string state = 2;
+  // RFC 3339.
+  string started_at = 3;
+  // RFC 3339; empty while running.
+  string finished_at = 4;
+  // The run's folder in the bucket, under the prefix and the plan's id: one <database>.sql.gz per database.
+  string folder = 5;
+  // Bytes uploaded.
+  int64 size = 6;
+  string error = 7;
+}
+
+message BackupPlan {
+  // 12 characters of lowercase base32, chosen by the app.
+  string id = 1;
+  string name = 2;
+  repeated string databases = 3;
+  // Five cron fields or a macro such as @daily, in the server's time zone.
+  string schedule = 4;
+  // How many backups stay in the bucket; older ones are deleted after a successful run.
+  uint32 keep = 5;
+  BackupStorage storage = 6;
+  // The latest runs, newest first. Set by ListBackupPlans.
+  repeated BackupRun runs = 7;
+}
+
+message ListBackupPlansRequest {
+  // Runs per plan; 0 means 10.
+  uint32 run_limit = 1;
+}
+
+message ListBackupPlansResponse {
+  repeated BackupPlan plans = 1;
+  uint64 revision = 2;
+}
+
+message PutBackupPlansRequest {
+  repeated BackupPlan plans = 1;
+  uint64 expected_revision = 2;
+}
+
+message PutBackupPlansResponse {
+  uint64 revision = 1;
+}
+
+message TestBackupStorageRequest {
+  BackupStorage storage = 1;
+  // With an empty secret key, the plan whose stored key is used.
+  string plan_id = 2;
+}
+
+message TestBackupStorageResponse {
+  bool ok = 1;
+  // Why the storage refused, when not ok.
+  string error = 2;
+}
+
+message RunBackupRequest {
+  string plan_id = 1;
+}
+
+message RunBackupResponse {
+  BackupRun run = 1;
+}

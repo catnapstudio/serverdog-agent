@@ -1,0 +1,348 @@
+syntax = "proto3";
+
+package serverdog.agent.v1;
+
+option go_package = "github.com/catnapstudio/serverdog-agent/gen/serverdog/agent/v1;agentv1";
+
+// SiteService creates, changes and removes sites. Added in protocol 2.
+service SiteService {
+  // Creates the site when it doesn't exist (expected_revision 0), otherwise replaces it.
+  rpc PutSite(PutSiteRequest) returns (PutSiteResponse);
+  rpc GetSite(GetSiteRequest) returns (GetSiteResponse);
+  rpc ListSites(ListSitesRequest) returns (ListSitesResponse);
+  rpc DeleteSite(DeleteSiteRequest) returns (DeleteSiteResponse);
+  // Returns the site's deploy key, generating it on first use (also before the site exists).
+  rpc GetDeployKey(GetDeployKeyRequest) returns (GetDeployKeyResponse);
+  rpc TestRepository(TestRepositoryRequest) returns (TestRepositoryResponse);
+  rpc TrustHostKey(TrustHostKeyRequest) returns (TrustHostKeyResponse);
+  // Drops the keys the site trusts for a repository's host, so a rotated key can be trusted again. Added in protocol 3.
+  rpc RemoveHostKeys(RemoveHostKeysRequest) returns (RemoveHostKeysResponse);
+  rpc ListActivity(ListActivityRequest) returns (ListActivityResponse);
+  // Reports whether each of the site's processes runs, with its recent log. Added in protocol 4.
+  rpc ListProcesses(ListProcessesRequest) returns (ListProcessesResponse);
+  // Restarts every copy of one process without waiting, as a deploy does. Fails with FAILED_PRECONDITION when the
+  // process is stopped. Added in protocol 19.
+  rpc RestartProcess(RestartProcessRequest) returns (RestartProcessResponse);
+}
+
+enum Runtime {
+  RUNTIME_UNSPECIFIED = 0;
+  RUNTIME_PHP = 1;
+  RUNTIME_NODE = 2;
+  RUNTIME_STATIC = 3;
+  // Forwards requests to backends on other servers. Added in protocol 17.
+  RUNTIME_BALANCER = 4;
+}
+
+enum Balancing {
+  BALANCING_UNSPECIFIED = 0;
+  BALANCING_ROUND_ROBIN = 1;
+  BALANCING_LEAST_CONNECTIONS = 2;
+  // Keeps each visitor's address on one backend while it's up.
+  BALANCING_IP_HASH = 3;
+}
+
+// A server a load-balanced site sends requests to.
+message Backend {
+  // An IP address or a hostname, usually the server's private address.
+  string address = 1;
+  uint32 port = 2;
+  // Its share of requests relative to the others, 1 to 100.
+  uint32 weight = 3;
+  // Only gets requests while every other backend is down.
+  bool backup = 4;
+}
+
+enum Redirect {
+  REDIRECT_UNSPECIFIED = 0;
+  REDIRECT_FROM_WWW = 1;
+  REDIRECT_TO_WWW = 2;
+  REDIRECT_NONE = 3;
+}
+
+message Domain {
+  // Lowercase bare name, e.g. "example.com".
+  string name = 1;
+  bool wildcards = 2;
+  Redirect redirect = 3;
+  bool primary = 4;
+  // Forwards the domain to the site's Reverb server (Site.reverb_port) instead of serving the site. At most one per
+  // PHP site; never primary, without www or wildcard names. Protocol 19.
+  bool reverb = 5;
+}
+
+message PathRedirect {
+  // An absolute path, like /old-page.
+  string from = 1;
+  // A path on the site or an http(s) URL.
+  string to = 2;
+  // 301 when set, otherwise 302.
+  bool permanent = 3;
+}
+
+message Site {
+  string id = 1;
+  // "laravel", "symfony", "statamic", "php", "nextjs", "nuxt", "astro", "html", "other".
+  string preset = 2;
+  Runtime runtime = 3;
+  repeated Domain domains = 4;
+  string repository_url = 5;
+  string branch = 6;
+  // PHP sites only, e.g. "8.4".
+  string php_version = 7;
+  // Relative to the release; empty means the repository root.
+  string web_directory = 8;
+  // e.g. ".env" or ".env.local"; empty for none.
+  string environment_file = 9;
+  repeated string shared_paths = 10;
+  string deploy_script = 11;
+  bool zero_downtime = 12;
+  bool environment_in_script = 13;
+  uint32 releases_to_keep = 14;
+  uint32 deploy_timeout_minutes = 15;
+  // Node sites only.
+  string node_start_command = 16;
+  bool isolated = 17;
+  // "serverdog", or the isolated user's name.
+  string user = 18;
+  bool force_https = 19;
+  bool hsts = 20;
+  // Fields below are set by the agent and ignored in PutSite.
+  bool nginx_customised = 21;
+  uint64 revision = 22;
+  string directory = 23;
+  // RFC 3339.
+  string created_at = 24;
+  // Commands kept running as the site's user in its live release, such as queue workers. Added in protocol 4.
+  repeated Process processes = 25;
+  // PHP sites only: runs `php artisan schedule:run` every minute in the live release. Added in protocol 4.
+  bool scheduler = 26;
+  // Deploys the branch when it gets a new commit. The agent asks the repository every minute. Needs a repository.
+  bool deploy_on_push = 27;
+  // Where the app's artisan lives, relative to the repository root; empty is the root. The scheduler runs there.
+  string app_directory = 28;
+  // Names a site without a website: one with no domains, such as a worker's. Its directory is named after it.
+  // Empty for a site with domains.
+  string name = 29;
+  // Requested through Nginx after each deploy, like /up; a status of 400 or more fails the deploy, which stays live.
+  // Empty skips the check. Added in protocol 5.
+  string health_check_path = 30;
+  // Exact paths answered with a redirect. Added in protocol 13.
+  repeated PathRedirect redirects = 31;
+  // Set: every visitor logs in with this username. Added in protocol 13.
+  string basic_auth_username = 32;
+  // Write-only: a new password for basic_auth_username. Empty keeps the stored one; the agent never returns it.
+  string basic_auth_password = 33;
+  // A load-balanced site's backends and how it picks one. Added in protocol 17.
+  repeated Backend backends = 34;
+  Balancing balancing = 35;
+  // Talks to the backends over HTTPS.
+  bool backend_tls = 36;
+  // Read-only: the 127.0.0.1 port the site's Reverb server must listen on while a domain serves Reverb, else 0.
+  // Stays the site's once allocated. Protocol 19.
+  uint32 reverb_port = 37;
+  // Serves a PHP site with its Laravel Octane server (on the server-wide FrankenPHP) instead of PHP-FPM, from the
+  // next deploy on; Nginx still serves the release's static files. Each release's server starts on the site's idle
+  // port and takes over once it answers, as for a Node site.
+  bool octane = 38;
+  // Read-only: the 127.0.0.1 port Nginx sends requests to once a deploy made Octane live; 0 until then.
+  uint32 octane_port = 39;
+  reserved 40;
+  // How many requests the site's PHP-FPM pool runs at once (pm.max_children), 1 to 500; 0 is the default, 10.
+  uint32 php_workers = 41;
+  // Was deploy_webhook_url in protocol 20, which no release shipped.
+  reserved 42;
+  // Where this site's deploys and rollbacks are posted, success or failure; each is optional. With none set they are
+  // left to the server's webhook, which posts failures. Protocol 21.
+  DeployNotifications deploy_notifications = 43;
+  // The site's own Nginx rules: its root, index and locations, written inside each of its server blocks in place of
+  // the generated ones. ServerDog still writes the names, ports, certificate, logs, password protection and
+  // redirects around them. Empty uses the generated rules. Protocol 22.
+  string nginx_rules = 44;
+  // Read-only: the rules ServerDog generates for this site, which its own rules start from.
+  string nginx_default_rules = 45;
+}
+
+message DeployNotifications {
+  // A Slack incoming webhook.
+  string slack_url = 1;
+  // A Discord webhook.
+  string discord_url = 2;
+  // Any address: it gets a JSON document describing the deploy (status, site, server, kind, commit, message, error).
+  string hook_url = 3;
+}
+
+message Process {
+  // Chosen by the app when the process is added (12 characters, like a site id), and never changed.
+  string id = 1;
+  // e.g. "Queue worker".
+  string name = 2;
+  // One line, run by /bin/sh in the live release, e.g. "php8.4 artisan queue:work --sleep=3 --tries=3".
+  string command = 3;
+  // How many copies run, 1 to 16.
+  uint32 count = 4;
+  // Where it runs, relative to the release root, e.g. "app"; empty is the root. Protocol 5.
+  string directory = 5;
+  // Stopped processes stay off, deploys included, until saved with stopped false. Protocol 19.
+  bool stopped = 6;
+  // How long a copy may take to stop before it's killed, 1 to 3600 seconds; 0 means 60. Protocol 19.
+  uint32 stop_seconds = 7;
+}
+
+message PutSiteRequest {
+  Site site = 1;
+  // The revision the app last saw; 0 to create.
+  uint64 expected_revision = 2;
+  // Who made the change, e.g. "Morgan's MacBook Pro".
+  string actor = 3;
+}
+
+message PutSiteResponse {
+  Site site = 1;
+  bool created = 2;
+}
+
+message GetSiteRequest {
+  string id = 1;
+}
+
+message GetSiteResponse {
+  Site site = 1;
+}
+
+message ListSitesRequest {}
+
+message ListSitesResponse {
+  repeated Site sites = 1;
+}
+
+message DeleteSiteRequest {
+  string id = 1;
+  // Also delete the site directory, and the isolated user when there is one.
+  bool remove_files = 2;
+  string actor = 3;
+}
+
+message DeleteSiteResponse {}
+
+message GetDeployKeyRequest {
+  string site_id = 1;
+}
+
+message GetDeployKeyResponse {
+  // authorized_keys format: "ssh-ed25519 AAAA... serverdog-<site-id>".
+  string public_key = 1;
+  // "SHA256:...".
+  string fingerprint = 2;
+}
+
+enum RepositoryAccess {
+  REPOSITORY_ACCESS_UNSPECIFIED = 0;
+  REPOSITORY_ACCESS_OK = 1;
+  REPOSITORY_ACCESS_KEY_NOT_ADDED = 2;
+  REPOSITORY_ACCESS_REPOSITORY_NOT_FOUND = 3;
+  REPOSITORY_ACCESS_BRANCH_NOT_FOUND = 4;
+  REPOSITORY_ACCESS_HOST_KEY_CHANGED = 5;
+  REPOSITORY_ACCESS_HOST_KEY_UNKNOWN = 6;
+  REPOSITORY_ACCESS_HOST_UNREACHABLE = 7;
+  REPOSITORY_ACCESS_FAILED = 8;
+}
+
+message TestRepositoryRequest {
+  string site_id = 1;
+  string repository_url = 2;
+  string branch = 3;
+}
+
+message TestRepositoryResponse {
+  RepositoryAccess access = 1;
+  // The branch's latest commit when access is OK.
+  string commit = 2;
+  // known_hosts name, e.g. "github.com" or "[git.example.com]:2222".
+  string host = 3;
+  // For HOST_KEY_UNKNOWN and HOST_KEY_CHANGED: the key the host offers now.
+  string host_key_type = 4;
+  string host_key_fingerprint = 5;
+  // Git's or ssh's own message, for the error's details.
+  string detail = 6;
+  // For HOST_KEY_CHANGED: the fingerprint of the key the site trusts for this host. Empty when the trusted key comes
+  // from the providers' list, which the site can't remove.
+  string trusted_host_key_fingerprint = 7;
+}
+
+message TrustHostKeyRequest {
+  string site_id = 1;
+  string repository_url = 2;
+  // The fingerprint the user confirmed; the agent rescans and stores the key only when it still matches.
+  string fingerprint = 3;
+}
+
+message TrustHostKeyResponse {}
+
+message RemoveHostKeysRequest {
+  string site_id = 1;
+  string repository_url = 2;
+  // The trusted key's fingerprint the user confirmed; the agent removes the host's keys only when the site still
+  // trusts that key.
+  string fingerprint = 3;
+  // Who made the change, e.g. "Morgan's MacBook Pro".
+  string actor = 4;
+}
+
+message RemoveHostKeysResponse {
+  // known_hosts name, e.g. "[git.example.com]:2222".
+  string host = 1;
+  // The fingerprints of the keys that were removed.
+  repeated string fingerprints = 2;
+}
+
+message ListActivityRequest {
+  string site_id = 1;
+  uint32 limit = 2;
+}
+
+message ActivityEntry {
+  // RFC 3339.
+  string at = 1;
+  // e.g. "site.created", "deploy.succeeded", "env.changed".
+  string kind = 2;
+  string actor = 3;
+  string summary = 4;
+}
+
+message ListActivityResponse {
+  // Newest first.
+  repeated ActivityEntry entries = 1;
+}
+
+message ListProcessesRequest {
+  string site_id = 1;
+  // How many log lines to return per process; 0 means 100, at most 500.
+  uint32 log_lines = 2;
+  // Return the states only. Reading each process's journal is most of the cost, and a list with no log open
+  // doesn't show it. Protocol 19.
+  bool without_logs = 3;
+}
+
+message ProcessStatus {
+  string id = 1;
+  // How many copies are running now, out of the process's count.
+  uint32 running = 2;
+  // The site has no live release yet, so its processes wait for the first deploy.
+  bool waiting_for_release = 3;
+  // The copies' recent output from the journal, oldest first.
+  string log = 4;
+}
+
+message ListProcessesResponse {
+  repeated ProcessStatus processes = 1;
+}
+
+message RestartProcessRequest {
+  string site_id = 1;
+  string process_id = 2;
+  // Who asked, for the activity log, e.g. the Mac's name.
+  string actor = 3;
+}
+
+message RestartProcessResponse {}
