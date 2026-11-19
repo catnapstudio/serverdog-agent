@@ -43,7 +43,7 @@ func Render(in Input) []byte {
 	fmt.Fprintf(&b, "# Managed by ServerDog for site %s.\n", s.ID)
 	b.WriteString("# Saving this file from ServerDog marks it customised, and ServerDog stops regenerating it.\n")
 
-	if s.Runtime == site.Node || in.OctaneLive {
+	if s.RunsStartCommand() || in.OctaneLive {
 		fmt.Fprintf(&b, "\ninclude %s;\n", paths.NginxUpstream(s.ID))
 	}
 	if s.Runtime == site.Balancer {
@@ -316,7 +316,7 @@ func rules(s site.Site, placeholder, octaneLive bool) []string {
 		)
 		return append(lines, hidden...)
 
-	case s.Runtime == site.Node:
+	case s.RunsStartCommand():
 		return append(lines,
 			"location / {",
 			"    proxy_pass http://"+nodeservice.UpstreamName(s.ID)+";",

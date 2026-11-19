@@ -36,7 +36,7 @@ func TestNames(t *testing.T) {
 
 func TestRenderPortEnvAndUpstream(t *testing.T) {
 	env := string(RenderPortEnv(20001, "/home/serverdog/app.com/releases/20261016-181245"))
-	for _, line := range []string{"PORT=20001", "HOST=127.0.0.1", "HOSTNAME=127.0.0.1", "NODE_ENV=production", "SERVERDOG_RELEASE_DIRECTORY=/home/serverdog/app.com/releases/20261016-181245"} {
+	for _, line := range []string{"PORT=20001", "HOST=127.0.0.1", "HOSTNAME=127.0.0.1", "NODE_ENV=production", "PYTHONUNBUFFERED=1", "SERVERDOG_RELEASE_DIRECTORY=/home/serverdog/app.com/releases/20261016-181245"} {
 		if !strings.Contains(env, line+"\n") {
 			t.Errorf("env lacks %q", line)
 		}

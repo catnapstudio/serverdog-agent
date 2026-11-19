@@ -37,6 +37,7 @@ import (
 	"github.com/catnapstudio/serverdog-agent/internal/sites"
 	"github.com/catnapstudio/serverdog-agent/internal/sshkeys"
 	"github.com/catnapstudio/serverdog-agent/internal/state"
+	"github.com/catnapstudio/serverdog-agent/internal/tools"
 	"github.com/catnapstudio/serverdog-agent/internal/updates"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -72,6 +73,7 @@ type Services struct {
 	Network        *network.Manager
 	Updates        *updates.Manager
 	FrankenPHP     *frankenphp.Installer
+	Tools          *tools.Installer
 	Insights       *insights.Scanner
 	Meilisearch    *meilisearch.Manager
 }
@@ -123,6 +125,8 @@ func (s serverService) GetCapabilities(ctx context.Context, _ *agentv1.GetCapabi
 		NginxVersion:    c.NginxVersion,
 		PublicAddresses: c.PublicAddresses,
 		PortGuard:       c.PortGuard,
+		UvVersion:       c.UVVersion,
+		BunVersion:      c.BunVersion,
 	}, nil
 }
 
@@ -209,6 +213,19 @@ func (s serverService) InstallFrankenPHP(ctx context.Context, _ *agentv1.Install
 	}
 
 	return &agentv1.InstallFrankenPHPResponse{Version: frankenphp.Version}, nil
+}
+
+func (s serverService) InstallTool(ctx context.Context, request *agentv1.InstallToolRequest) (*agentv1.InstallToolResponse, error) {
+	tool, known := map[agentv1.Tool]tools.Tool{agentv1.Tool_TOOL_UV: tools.UV, agentv1.Tool_TOOL_BUN: tools.Bun}[request.Tool]
+	if !known {
+		return nil, status.Errorf(codes.InvalidArgument, "Unknown tool %v.", request.Tool)
+	}
+
+	if err := s.Tools.Install(ctx, tool); err != nil {
+		return nil, toStatus(err)
+	}
+
+	return &agentv1.InstallToolResponse{Version: tool.Version}, nil
 }
 
 func (s serverService) RestartBackgroundProcess(ctx context.Context, request *agentv1.RestartBackgroundProcessRequest) (*agentv1.RestartBackgroundProcessResponse, error) {

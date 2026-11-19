@@ -19,6 +19,7 @@ type Host struct {
 	PHPVersions []string
 	HasNginx    bool
 	HasNode     bool
+	HasUV       bool
 }
 
 // InvalidError is a site description the agent refuses before touching anything.
@@ -67,18 +68,22 @@ func Validate(s Site, host Host) error {
 		if s.PHPWorkers < 0 || s.PHPWorkers > MaxPHPWorkers {
 			return invalid("phpWorkers", "PHP workers must be between 1 and %d.", MaxPHPWorkers)
 		}
-	case Node:
-		if !host.HasNode {
+	case Node, Python:
+		if s.Runtime == Node && !host.HasNode {
 			return invalid("runtime", "Node.js isn't installed on this server.")
 		}
+		if s.Runtime == Python && !host.HasUV {
+			return invalid("runtime", "uv isn't installed on this server. Install it for Python sites.")
+		}
+		name := map[Runtime]string{Node: "Node", Python: "Python"}[s.Runtime]
 		if strings.TrimSpace(s.NodeStartCommand) == "" {
-			return invalid("nodeStartCommand", "Node sites need a start command.")
+			return invalid("nodeStartCommand", "%s sites need a start command.", name)
 		}
 		if strings.ContainsAny(s.NodeStartCommand, "\r\n") || len(s.NodeStartCommand) > 500 {
 			return invalid("nodeStartCommand", "The start command must be a single line of at most 500 characters.")
 		}
 		if !s.ZeroDowntime {
-			return invalid("zeroDowntime", "Node sites always use zero-downtime deploys.")
+			return invalid("zeroDowntime", "%s sites always use zero-downtime deploys.", name)
 		}
 	case Static:
 	case Balancer:
@@ -317,8 +322,8 @@ func validateWebsite(s Site, host Host) error {
 	if !siteName.MatchString(s.Name) {
 		return invalid("name", "A site without a website needs a name of lowercase letters, digits and hyphens, like worker.")
 	}
-	if s.Runtime == Node {
-		return invalid("runtime", "A site without a website can't be a Node site. Choose PHP or none, and run Node as a process.")
+	if s.RunsStartCommand() {
+		return invalid("runtime", "A site without a website can't be a Node or Python site. Choose PHP or none, and run the app as a process.")
 	}
 
 	return nil

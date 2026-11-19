@@ -119,6 +119,36 @@ func TestValidateNeedsNginxAndNode(t *testing.T) {
 	}
 }
 
+func TestAPythonSiteNeedsUVAStartCommandAndZeroDowntime(t *testing.T) {
+	python := laravel()
+	python.Runtime, python.PHPVersion, python.NodeStartCommand = Python, "", ".venv/bin/uvicorn main:app --port $PORT"
+
+	if err := Validate(python, Host{HasNginx: true, HasUV: true}); err != nil {
+		t.Fatal(err)
+	}
+	if err := Validate(python, Host{HasNginx: true, HasNode: true}); err == nil || !strings.Contains(err.Error(), "uv isn't installed") {
+		t.Errorf("without uv: err = %v", err)
+	}
+
+	cases := map[string]func(*Site){
+		"no command":       func(s *Site) { s.NodeStartCommand = " " },
+		"two lines":        func(s *Site) { s.NodeStartCommand = "gunicorn\nrm -rf /" },
+		"no zero downtime": func(s *Site) { s.ZeroDowntime = false },
+		"no website":       func(s *Site) { s.Domains, s.Name = nil, "worker" },
+	}
+	for name, change := range cases {
+		bad := python
+		change(&bad)
+		if err := Validate(bad, Host{HasNginx: true, HasUV: true}); err == nil {
+			t.Errorf("%s: accepted", name)
+		}
+	}
+
+	if !python.RunsOwnServer() || !python.RunsStartCommand() {
+		t.Error("a Python site runs its own server")
+	}
+}
+
 func TestASiteWithoutAWebsiteNeedsANameAndNoNginx(t *testing.T) {
 	s := laravel()
 	s.Domains, s.Name = nil, "worker"

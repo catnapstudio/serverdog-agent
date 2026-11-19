@@ -23,6 +23,10 @@ service ServerService {
   // already: ~175 MB from GitHub, checked against its published SHA-256. Fails with FAILED_PRECONDITION when the
   // download fails or doesn't match. Added in protocol 19.
   rpc InstallFrankenPHP(InstallFrankenPHPRequest) returns (InstallFrankenPHPResponse);
+  // Installs the version of uv or Bun the agent pins in /usr/local/bin, unless ServerDog installed it already, checked
+  // against the SHA-256 the agent was built with. Fails with FAILED_PRECONDITION when the download fails or doesn't
+  // match. Added in protocol 24.
+  rpc InstallTool(InstallToolRequest) returns (InstallToolResponse);
   // The timezone and whether Redis asks for a password. Added in protocol 14.
   rpc GetServerSettings(GetServerSettingsRequest) returns (GetServerSettingsResponse);
   // Changes the system timezone; cron restarts so scheduled jobs follow it.
@@ -391,6 +395,21 @@ message InstallFrankenPHPResponse {
   string version = 1;
 }
 
+enum Tool {
+  TOOL_UNSPECIFIED = 0;
+  TOOL_UV = 1;
+  TOOL_BUN = 2;
+}
+
+message InstallToolRequest {
+  Tool tool = 1;
+}
+
+message InstallToolResponse {
+  // e.g. "0.13.9".
+  string version = 1;
+}
+
 message PHPSettings {
   // upload_max_filesize, post_max_size and Nginx's client_max_body_size, 1 to 4096.
   uint32 upload_mb = 1;
@@ -559,6 +578,10 @@ message GetCapabilitiesResponse {
   // True when the Node port guard is attached and no ephemeral port falls in the Node range (20000-29999), so no other
   // user can take a Node site's port. Added in protocol 3.
   bool port_guard = 7;
+  // e.g. "0.13.9"; empty when uv isn't installed. Added in protocol 24.
+  string uv_version = 8;
+  // e.g. "1.4.4"; empty when Bun isn't installed. Added in protocol 24.
+  string bun_version = 9;
 }
 
 message NetworkPeer {

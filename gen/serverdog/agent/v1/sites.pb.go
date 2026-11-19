@@ -30,6 +30,8 @@ const (
 	Runtime_RUNTIME_STATIC      Runtime = 3
 	// Forwards requests to backends on other servers. Added in protocol 17.
 	Runtime_RUNTIME_BALANCER Runtime = 4
+	// Runs the start command on the site's ports like a Node site, with uv for its dependencies. Added in protocol 24.
+	Runtime_RUNTIME_PYTHON Runtime = 5
 )
 
 // Enum value maps for Runtime.
@@ -40,6 +42,7 @@ var (
 		2: "RUNTIME_NODE",
 		3: "RUNTIME_STATIC",
 		4: "RUNTIME_BALANCER",
+		5: "RUNTIME_PYTHON",
 	}
 	Runtime_value = map[string]int32{
 		"RUNTIME_UNSPECIFIED": 0,
@@ -47,6 +50,7 @@ var (
 		"RUNTIME_NODE":        2,
 		"RUNTIME_STATIC":      3,
 		"RUNTIME_BALANCER":    4,
+		"RUNTIME_PYTHON":      5,
 	}
 )
 
@@ -484,7 +488,7 @@ type Site struct {
 	EnvironmentInScript  bool     `protobuf:"varint,13,opt,name=environment_in_script,json=environmentInScript,proto3" json:"environment_in_script,omitempty"`
 	ReleasesToKeep       uint32   `protobuf:"varint,14,opt,name=releases_to_keep,json=releasesToKeep,proto3" json:"releases_to_keep,omitempty"`
 	DeployTimeoutMinutes uint32   `protobuf:"varint,15,opt,name=deploy_timeout_minutes,json=deployTimeoutMinutes,proto3" json:"deploy_timeout_minutes,omitempty"`
-	// Node sites only.
+	// Node and Python sites only: what each release's server runs, with PORT and HOST set.
 	NodeStartCommand string `protobuf:"bytes,16,opt,name=node_start_command,json=nodeStartCommand,proto3" json:"node_start_command,omitempty"`
 	Isolated         bool   `protobuf:"varint,17,opt,name=isolated,proto3" json:"isolated,omitempty"`
 	// "serverdog", or the isolated user's name.
@@ -2500,13 +2504,14 @@ const file_serverdog_agent_v1_sites_proto_rawDesc = "" +
 	"\n" +
 	"process_id\x18\x02 \x01(\tR\tprocessId\x12\x14\n" +
 	"\x05actor\x18\x03 \x01(\tR\x05actor\"\x18\n" +
-	"\x16RestartProcessResponse*o\n" +
+	"\x16RestartProcessResponse*\x83\x01\n" +
 	"\aRuntime\x12\x17\n" +
 	"\x13RUNTIME_UNSPECIFIED\x10\x00\x12\x0f\n" +
 	"\vRUNTIME_PHP\x10\x01\x12\x10\n" +
 	"\fRUNTIME_NODE\x10\x02\x12\x12\n" +
 	"\x0eRUNTIME_STATIC\x10\x03\x12\x14\n" +
-	"\x10RUNTIME_BALANCER\x10\x04*y\n" +
+	"\x10RUNTIME_BALANCER\x10\x04\x12\x12\n" +
+	"\x0eRUNTIME_PYTHON\x10\x05*y\n" +
 	"\tBalancing\x12\x19\n" +
 	"\x15BALANCING_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15BALANCING_ROUND_ROBIN\x10\x01\x12\x1f\n" +

@@ -40,6 +40,8 @@ func TestDetect(t *testing.T) {
 	runner := &systemtest.Fake{}
 	runner.Handle("nginx", output("nginx version: nginx/1.24.0 (Ubuntu)\n"))
 	runner.Handle("node", output("v24.22.0\n"))
+	runner.Handle("uv", output("uv 0.13.9 (x86_64-unknown-linux-gnu)\n"))
+	runner.Handle("bun", output("1.4.4\n"))
 	runner.Handle("/usr/sbin/mysqld", output("/usr/sbin/mysqld  Ver 8.4.11 for Linux on aarch64 (MySQL Community Server - GPL)\n"))
 
 	detector := Detector{
@@ -63,6 +65,8 @@ func TestDetect(t *testing.T) {
 		DatabaseEngine:  "mysql",
 		DatabaseVersion: "8.4.11",
 		NodeVersion:     "v24.22.0",
+		UVVersion:       "0.13.9",
+		BunVersion:      "1.4.4",
 		NginxVersion:    "1.24.0",
 		PublicAddresses: []string{"204.168.251.65", "2a01:4f9:c012:1234::1"},
 	}

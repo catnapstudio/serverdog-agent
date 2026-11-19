@@ -22,6 +22,8 @@ type Capabilities struct {
 	DatabaseEngine  string
 	DatabaseVersion string
 	NodeVersion     string
+	UVVersion       string
+	BunVersion      string
 	NginxVersion    string
 	PublicAddresses []string
 	// PortGuard is true when the Node port guard is attached and no ephemeral port falls in the Node range, so no
@@ -31,7 +33,7 @@ type Capabilities struct {
 
 // Host is the part of Capabilities that site validation needs.
 func (c Capabilities) Host() site.Host {
-	return site.Host{PHPVersions: c.PHPVersions, HasNginx: c.NginxVersion != "", HasNode: c.NodeVersion != ""}
+	return site.Host{PHPVersions: c.PHPVersions, HasNginx: c.NginxVersion != "", HasNode: c.NodeVersion != "", HasUV: c.UVVersion != ""}
 }
 
 // NginxHTTP2Directive reports whether Nginx is 1.25.1 or newer, which enables HTTP/2 with "http2 on;"
@@ -67,6 +69,15 @@ func (d Detector) Detect(ctx context.Context) Capabilities {
 
 	if node := strings.TrimSpace(d.output(ctx, "node", "--version")); strings.HasPrefix(node, "v") {
 		c.NodeVersion = node
+	}
+
+	// "uv 0.13.9 (x86_64-unknown-linux-gnu)" and "1.4.4".
+	if fields := strings.Fields(d.output(ctx, "uv", "--version")); len(fields) > 1 && fields[0] == "uv" {
+		c.UVVersion = fields[1]
+	}
+
+	if bun := strings.TrimSpace(d.output(ctx, "bun", "--version")); bun != "" && !strings.ContainsAny(bun, " \n") {
+		c.BunVersion = bun
 	}
 
 	c.DatabaseEngine, c.DatabaseVersion = d.database(ctx)

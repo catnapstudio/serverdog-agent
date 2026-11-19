@@ -31,7 +31,8 @@ package version
 // 22 adds a site's own Nginx rules (Site.nginx_rules, Site.nginx_default_rules).
 // 23 adds Meilisearch's settings and API keys (GetMeilisearchConfig, PutMeilisearchConfig, ListMeilisearchKeys) and
 // its log.
-const ProtocolVersion uint32 = 23
+// 24 adds Python sites (RUNTIME_PYTHON), installing uv and Bun (InstallTool) and their versions in GetCapabilities.
+const ProtocolVersion uint32 = 24
 
 var (
 	Version = "dev"

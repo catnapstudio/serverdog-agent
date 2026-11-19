@@ -93,7 +93,7 @@ func TestGetVersionReportsProtocolSix(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if response.ProtocolVersion != 23 {
-		t.Errorf("protocol version = %d, want 23", response.ProtocolVersion)
+	if response.ProtocolVersion != 24 {
+		t.Errorf("protocol version = %d, want 24", response.ProtocolVersion)
 	}
 }

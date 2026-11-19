@@ -12,6 +12,8 @@ const (
 	PHP    Runtime = "php"
 	Node   Runtime = "node"
 	Static Runtime = "static"
+	// Python runs the site's start command on its ports like Node, with uv for its dependencies (protocol 24).
+	Python Runtime = "python"
 	// Balancer runs nothing: Nginx spreads the site's requests across Backends on other servers.
 	Balancer Runtime = "balancer"
 )
@@ -126,7 +128,12 @@ type Site struct {
 // RunsOwnServer reports whether releases are served by a process of the site's own on one of its two ports (a Node
 // site, or a PHP site with Octane) rather than by PHP-FPM or as files.
 func (s Site) RunsOwnServer() bool {
-	return s.Runtime == Node || (s.Runtime == PHP && s.Octane)
+	return s.RunsStartCommand() || (s.Runtime == PHP && s.Octane)
+}
+
+// RunsStartCommand reports whether each release's server is the site's own start command: a Node or Python site.
+func (s Site) RunsStartCommand() bool {
+	return s.Runtime == Node || s.Runtime == Python
 }
 
 // ReverbDomain is the domain that serves the site's Reverb server, if any.

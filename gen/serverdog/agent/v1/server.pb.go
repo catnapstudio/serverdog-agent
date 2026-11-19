@@ -21,6 +21,55 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type Tool int32
+
+const (
+	Tool_TOOL_UNSPECIFIED Tool = 0
+	Tool_TOOL_UV          Tool = 1
+	Tool_TOOL_BUN         Tool = 2
+)
+
+// Enum value maps for Tool.
+var (
+	Tool_name = map[int32]string{
+		0: "TOOL_UNSPECIFIED",
+		1: "TOOL_UV",
+		2: "TOOL_BUN",
+	}
+	Tool_value = map[string]int32{
+		"TOOL_UNSPECIFIED": 0,
+		"TOOL_UV":          1,
+		"TOOL_BUN":         2,
+	}
+)
+
+func (x Tool) Enum() *Tool {
+	p := new(Tool)
+	*p = x
+	return p
+}
+
+func (x Tool) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (Tool) Descriptor() protoreflect.EnumDescriptor {
+	return file_serverdog_agent_v1_server_proto_enumTypes[0].Descriptor()
+}
+
+func (Tool) Type() protoreflect.EnumType {
+	return &file_serverdog_agent_v1_server_proto_enumTypes[0]
+}
+
+func (x Tool) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use Tool.Descriptor instead.
+func (Tool) EnumDescriptor() ([]byte, []int) {
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{0}
+}
+
 type ServiceAction int32
 
 const (
@@ -60,11 +109,11 @@ func (x ServiceAction) String() string {
 }
 
 func (ServiceAction) Descriptor() protoreflect.EnumDescriptor {
-	return file_serverdog_agent_v1_server_proto_enumTypes[0].Descriptor()
+	return file_serverdog_agent_v1_server_proto_enumTypes[1].Descriptor()
 }
 
 func (ServiceAction) Type() protoreflect.EnumType {
-	return &file_serverdog_agent_v1_server_proto_enumTypes[0]
+	return &file_serverdog_agent_v1_server_proto_enumTypes[1]
 }
 
 func (x ServiceAction) Number() protoreflect.EnumNumber {
@@ -73,7 +122,7 @@ func (x ServiceAction) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ServiceAction.Descriptor instead.
 func (ServiceAction) EnumDescriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{0}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{1}
 }
 
 // One finding. The app owns the words; it hides kinds it doesn't know.
@@ -2759,6 +2808,95 @@ func (x *InstallFrankenPHPResponse) GetVersion() string {
 	return ""
 }
 
+type InstallToolRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Tool          Tool                   `protobuf:"varint,1,opt,name=tool,proto3,enum=serverdog.agent.v1.Tool" json:"tool,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *InstallToolRequest) Reset() {
+	*x = InstallToolRequest{}
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[51]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InstallToolRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InstallToolRequest) ProtoMessage() {}
+
+func (x *InstallToolRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[51]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InstallToolRequest.ProtoReflect.Descriptor instead.
+func (*InstallToolRequest) Descriptor() ([]byte, []int) {
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{51}
+}
+
+func (x *InstallToolRequest) GetTool() Tool {
+	if x != nil {
+		return x.Tool
+	}
+	return Tool_TOOL_UNSPECIFIED
+}
+
+type InstallToolResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// e.g. "0.13.9".
+	Version       string `protobuf:"bytes,1,opt,name=version,proto3" json:"version,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *InstallToolResponse) Reset() {
+	*x = InstallToolResponse{}
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[52]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InstallToolResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InstallToolResponse) ProtoMessage() {}
+
+func (x *InstallToolResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[52]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InstallToolResponse.ProtoReflect.Descriptor instead.
+func (*InstallToolResponse) Descriptor() ([]byte, []int) {
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{52}
+}
+
+func (x *InstallToolResponse) GetVersion() string {
+	if x != nil {
+		return x.Version
+	}
+	return ""
+}
+
 type PHPSettings struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// upload_max_filesize, post_max_size and Nginx's client_max_body_size, 1 to 4096.
@@ -2775,7 +2913,7 @@ type PHPSettings struct {
 
 func (x *PHPSettings) Reset() {
 	*x = PHPSettings{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[51]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2787,7 +2925,7 @@ func (x *PHPSettings) String() string {
 func (*PHPSettings) ProtoMessage() {}
 
 func (x *PHPSettings) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[51]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2800,7 +2938,7 @@ func (x *PHPSettings) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PHPSettings.ProtoReflect.Descriptor instead.
 func (*PHPSettings) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{51}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *PHPSettings) GetUploadMb() uint32 {
@@ -2839,7 +2977,7 @@ type GetPHPSettingsRequest struct {
 
 func (x *GetPHPSettingsRequest) Reset() {
 	*x = GetPHPSettingsRequest{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[52]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2851,7 +2989,7 @@ func (x *GetPHPSettingsRequest) String() string {
 func (*GetPHPSettingsRequest) ProtoMessage() {}
 
 func (x *GetPHPSettingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[52]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2864,7 +3002,7 @@ func (x *GetPHPSettingsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPHPSettingsRequest.ProtoReflect.Descriptor instead.
 func (*GetPHPSettingsRequest) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{52}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{54}
 }
 
 type GetPHPSettingsResponse struct {
@@ -2878,7 +3016,7 @@ type GetPHPSettingsResponse struct {
 
 func (x *GetPHPSettingsResponse) Reset() {
 	*x = GetPHPSettingsResponse{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[53]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2890,7 +3028,7 @@ func (x *GetPHPSettingsResponse) String() string {
 func (*GetPHPSettingsResponse) ProtoMessage() {}
 
 func (x *GetPHPSettingsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[53]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2903,7 +3041,7 @@ func (x *GetPHPSettingsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPHPSettingsResponse.ProtoReflect.Descriptor instead.
 func (*GetPHPSettingsResponse) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{53}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *GetPHPSettingsResponse) GetSettings() *PHPSettings {
@@ -2930,7 +3068,7 @@ type PutPHPSettingsRequest struct {
 
 func (x *PutPHPSettingsRequest) Reset() {
 	*x = PutPHPSettingsRequest{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[54]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2942,7 +3080,7 @@ func (x *PutPHPSettingsRequest) String() string {
 func (*PutPHPSettingsRequest) ProtoMessage() {}
 
 func (x *PutPHPSettingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[54]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2955,7 +3093,7 @@ func (x *PutPHPSettingsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PutPHPSettingsRequest.ProtoReflect.Descriptor instead.
 func (*PutPHPSettingsRequest) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{54}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{56}
 }
 
 func (x *PutPHPSettingsRequest) GetSettings() *PHPSettings {
@@ -2981,7 +3119,7 @@ type PutPHPSettingsResponse struct {
 
 func (x *PutPHPSettingsResponse) Reset() {
 	*x = PutPHPSettingsResponse{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[55]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2993,7 +3131,7 @@ func (x *PutPHPSettingsResponse) String() string {
 func (*PutPHPSettingsResponse) ProtoMessage() {}
 
 func (x *PutPHPSettingsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[55]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3006,7 +3144,7 @@ func (x *PutPHPSettingsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PutPHPSettingsResponse.ProtoReflect.Descriptor instead.
 func (*PutPHPSettingsResponse) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{55}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{57}
 }
 
 func (x *PutPHPSettingsResponse) GetRevision() uint64 {
@@ -3028,7 +3166,7 @@ type ComposerCredential struct {
 
 func (x *ComposerCredential) Reset() {
 	*x = ComposerCredential{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[56]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[58]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3040,7 +3178,7 @@ func (x *ComposerCredential) String() string {
 func (*ComposerCredential) ProtoMessage() {}
 
 func (x *ComposerCredential) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[56]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[58]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3053,7 +3191,7 @@ func (x *ComposerCredential) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ComposerCredential.ProtoReflect.Descriptor instead.
 func (*ComposerCredential) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{56}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{58}
 }
 
 func (x *ComposerCredential) GetHost() string {
@@ -3087,7 +3225,7 @@ type GetComposerCredentialsRequest struct {
 
 func (x *GetComposerCredentialsRequest) Reset() {
 	*x = GetComposerCredentialsRequest{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[57]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[59]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3099,7 +3237,7 @@ func (x *GetComposerCredentialsRequest) String() string {
 func (*GetComposerCredentialsRequest) ProtoMessage() {}
 
 func (x *GetComposerCredentialsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[57]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[59]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3112,7 +3250,7 @@ func (x *GetComposerCredentialsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetComposerCredentialsRequest.ProtoReflect.Descriptor instead.
 func (*GetComposerCredentialsRequest) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{57}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{59}
 }
 
 func (x *GetComposerCredentialsRequest) GetUser() string {
@@ -3131,7 +3269,7 @@ type GetComposerCredentialsResponse struct {
 
 func (x *GetComposerCredentialsResponse) Reset() {
 	*x = GetComposerCredentialsResponse{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[58]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[60]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3143,7 +3281,7 @@ func (x *GetComposerCredentialsResponse) String() string {
 func (*GetComposerCredentialsResponse) ProtoMessage() {}
 
 func (x *GetComposerCredentialsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[58]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[60]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3156,7 +3294,7 @@ func (x *GetComposerCredentialsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetComposerCredentialsResponse.ProtoReflect.Descriptor instead.
 func (*GetComposerCredentialsResponse) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{58}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{60}
 }
 
 func (x *GetComposerCredentialsResponse) GetCredentials() []*ComposerCredential {
@@ -3176,7 +3314,7 @@ type PutComposerCredentialsRequest struct {
 
 func (x *PutComposerCredentialsRequest) Reset() {
 	*x = PutComposerCredentialsRequest{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[59]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[61]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3188,7 +3326,7 @@ func (x *PutComposerCredentialsRequest) String() string {
 func (*PutComposerCredentialsRequest) ProtoMessage() {}
 
 func (x *PutComposerCredentialsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[59]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[61]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3201,7 +3339,7 @@ func (x *PutComposerCredentialsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PutComposerCredentialsRequest.ProtoReflect.Descriptor instead.
 func (*PutComposerCredentialsRequest) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{59}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{61}
 }
 
 func (x *PutComposerCredentialsRequest) GetUser() string {
@@ -3226,7 +3364,7 @@ type PutComposerCredentialsResponse struct {
 
 func (x *PutComposerCredentialsResponse) Reset() {
 	*x = PutComposerCredentialsResponse{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[60]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[62]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3238,7 +3376,7 @@ func (x *PutComposerCredentialsResponse) String() string {
 func (*PutComposerCredentialsResponse) ProtoMessage() {}
 
 func (x *PutComposerCredentialsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[60]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[62]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3251,7 +3389,7 @@ func (x *PutComposerCredentialsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PutComposerCredentialsResponse.ProtoReflect.Descriptor instead.
 func (*PutComposerCredentialsResponse) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{60}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{62}
 }
 
 type NPMCredential struct {
@@ -3265,7 +3403,7 @@ type NPMCredential struct {
 
 func (x *NPMCredential) Reset() {
 	*x = NPMCredential{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[61]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[63]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3277,7 +3415,7 @@ func (x *NPMCredential) String() string {
 func (*NPMCredential) ProtoMessage() {}
 
 func (x *NPMCredential) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[61]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[63]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3290,7 +3428,7 @@ func (x *NPMCredential) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NPMCredential.ProtoReflect.Descriptor instead.
 func (*NPMCredential) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{61}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{63}
 }
 
 func (x *NPMCredential) GetRegistry() string {
@@ -3316,7 +3454,7 @@ type GetNPMCredentialsRequest struct {
 
 func (x *GetNPMCredentialsRequest) Reset() {
 	*x = GetNPMCredentialsRequest{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[62]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[64]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3328,7 +3466,7 @@ func (x *GetNPMCredentialsRequest) String() string {
 func (*GetNPMCredentialsRequest) ProtoMessage() {}
 
 func (x *GetNPMCredentialsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[62]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[64]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3341,7 +3479,7 @@ func (x *GetNPMCredentialsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetNPMCredentialsRequest.ProtoReflect.Descriptor instead.
 func (*GetNPMCredentialsRequest) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{62}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{64}
 }
 
 func (x *GetNPMCredentialsRequest) GetUser() string {
@@ -3360,7 +3498,7 @@ type GetNPMCredentialsResponse struct {
 
 func (x *GetNPMCredentialsResponse) Reset() {
 	*x = GetNPMCredentialsResponse{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[63]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[65]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3372,7 +3510,7 @@ func (x *GetNPMCredentialsResponse) String() string {
 func (*GetNPMCredentialsResponse) ProtoMessage() {}
 
 func (x *GetNPMCredentialsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[63]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[65]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3385,7 +3523,7 @@ func (x *GetNPMCredentialsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetNPMCredentialsResponse.ProtoReflect.Descriptor instead.
 func (*GetNPMCredentialsResponse) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{63}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{65}
 }
 
 func (x *GetNPMCredentialsResponse) GetCredentials() []*NPMCredential {
@@ -3405,7 +3543,7 @@ type PutNPMCredentialsRequest struct {
 
 func (x *PutNPMCredentialsRequest) Reset() {
 	*x = PutNPMCredentialsRequest{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[64]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[66]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3417,7 +3555,7 @@ func (x *PutNPMCredentialsRequest) String() string {
 func (*PutNPMCredentialsRequest) ProtoMessage() {}
 
 func (x *PutNPMCredentialsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[64]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[66]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3430,7 +3568,7 @@ func (x *PutNPMCredentialsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PutNPMCredentialsRequest.ProtoReflect.Descriptor instead.
 func (*PutNPMCredentialsRequest) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{64}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{66}
 }
 
 func (x *PutNPMCredentialsRequest) GetUser() string {
@@ -3455,7 +3593,7 @@ type PutNPMCredentialsResponse struct {
 
 func (x *PutNPMCredentialsResponse) Reset() {
 	*x = PutNPMCredentialsResponse{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[65]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[67]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3467,7 +3605,7 @@ func (x *PutNPMCredentialsResponse) String() string {
 func (*PutNPMCredentialsResponse) ProtoMessage() {}
 
 func (x *PutNPMCredentialsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[65]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[67]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3480,7 +3618,7 @@ func (x *PutNPMCredentialsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PutNPMCredentialsResponse.ProtoReflect.Descriptor instead.
 func (*PutNPMCredentialsResponse) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{65}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{67}
 }
 
 type GetServerSettingsRequest struct {
@@ -3491,7 +3629,7 @@ type GetServerSettingsRequest struct {
 
 func (x *GetServerSettingsRequest) Reset() {
 	*x = GetServerSettingsRequest{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[66]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[68]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3503,7 +3641,7 @@ func (x *GetServerSettingsRequest) String() string {
 func (*GetServerSettingsRequest) ProtoMessage() {}
 
 func (x *GetServerSettingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[66]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[68]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3516,7 +3654,7 @@ func (x *GetServerSettingsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetServerSettingsRequest.ProtoReflect.Descriptor instead.
 func (*GetServerSettingsRequest) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{66}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{68}
 }
 
 type GetServerSettingsResponse struct {
@@ -3532,7 +3670,7 @@ type GetServerSettingsResponse struct {
 
 func (x *GetServerSettingsResponse) Reset() {
 	*x = GetServerSettingsResponse{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[67]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[69]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3544,7 +3682,7 @@ func (x *GetServerSettingsResponse) String() string {
 func (*GetServerSettingsResponse) ProtoMessage() {}
 
 func (x *GetServerSettingsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[67]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[69]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3557,7 +3695,7 @@ func (x *GetServerSettingsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetServerSettingsResponse.ProtoReflect.Descriptor instead.
 func (*GetServerSettingsResponse) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{67}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{69}
 }
 
 func (x *GetServerSettingsResponse) GetTimezone() string {
@@ -3590,7 +3728,7 @@ type SetTimezoneRequest struct {
 
 func (x *SetTimezoneRequest) Reset() {
 	*x = SetTimezoneRequest{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[68]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[70]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3602,7 +3740,7 @@ func (x *SetTimezoneRequest) String() string {
 func (*SetTimezoneRequest) ProtoMessage() {}
 
 func (x *SetTimezoneRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[68]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[70]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3615,7 +3753,7 @@ func (x *SetTimezoneRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetTimezoneRequest.ProtoReflect.Descriptor instead.
 func (*SetTimezoneRequest) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{68}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{70}
 }
 
 func (x *SetTimezoneRequest) GetTimezone() string {
@@ -3633,7 +3771,7 @@ type SetTimezoneResponse struct {
 
 func (x *SetTimezoneResponse) Reset() {
 	*x = SetTimezoneResponse{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[69]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[71]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3645,7 +3783,7 @@ func (x *SetTimezoneResponse) String() string {
 func (*SetTimezoneResponse) ProtoMessage() {}
 
 func (x *SetTimezoneResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[69]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[71]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3658,7 +3796,7 @@ func (x *SetTimezoneResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetTimezoneResponse.ProtoReflect.Descriptor instead.
 func (*SetTimezoneResponse) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{69}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{71}
 }
 
 type SetRedisPasswordRequest struct {
@@ -3671,7 +3809,7 @@ type SetRedisPasswordRequest struct {
 
 func (x *SetRedisPasswordRequest) Reset() {
 	*x = SetRedisPasswordRequest{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[70]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[72]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3683,7 +3821,7 @@ func (x *SetRedisPasswordRequest) String() string {
 func (*SetRedisPasswordRequest) ProtoMessage() {}
 
 func (x *SetRedisPasswordRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[70]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[72]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3696,7 +3834,7 @@ func (x *SetRedisPasswordRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetRedisPasswordRequest.ProtoReflect.Descriptor instead.
 func (*SetRedisPasswordRequest) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{70}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{72}
 }
 
 func (x *SetRedisPasswordRequest) GetPassword() string {
@@ -3714,7 +3852,7 @@ type SetRedisPasswordResponse struct {
 
 func (x *SetRedisPasswordResponse) Reset() {
 	*x = SetRedisPasswordResponse{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[71]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[73]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3726,7 +3864,7 @@ func (x *SetRedisPasswordResponse) String() string {
 func (*SetRedisPasswordResponse) ProtoMessage() {}
 
 func (x *SetRedisPasswordResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[71]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[73]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3739,7 +3877,7 @@ func (x *SetRedisPasswordResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetRedisPasswordResponse.ProtoReflect.Descriptor instead.
 func (*SetRedisPasswordResponse) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{71}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{73}
 }
 
 type ListSystemServicesRequest struct {
@@ -3750,7 +3888,7 @@ type ListSystemServicesRequest struct {
 
 func (x *ListSystemServicesRequest) Reset() {
 	*x = ListSystemServicesRequest{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[72]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[74]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3762,7 +3900,7 @@ func (x *ListSystemServicesRequest) String() string {
 func (*ListSystemServicesRequest) ProtoMessage() {}
 
 func (x *ListSystemServicesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[72]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[74]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3775,7 +3913,7 @@ func (x *ListSystemServicesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSystemServicesRequest.ProtoReflect.Descriptor instead.
 func (*ListSystemServicesRequest) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{72}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{74}
 }
 
 type SystemService struct {
@@ -3792,7 +3930,7 @@ type SystemService struct {
 
 func (x *SystemService) Reset() {
 	*x = SystemService{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[73]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[75]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3804,7 +3942,7 @@ func (x *SystemService) String() string {
 func (*SystemService) ProtoMessage() {}
 
 func (x *SystemService) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[73]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[75]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3817,7 +3955,7 @@ func (x *SystemService) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SystemService.ProtoReflect.Descriptor instead.
 func (*SystemService) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{73}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{75}
 }
 
 func (x *SystemService) GetUnit() string {
@@ -3850,7 +3988,7 @@ type ListSystemServicesResponse struct {
 
 func (x *ListSystemServicesResponse) Reset() {
 	*x = ListSystemServicesResponse{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[74]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[76]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3862,7 +4000,7 @@ func (x *ListSystemServicesResponse) String() string {
 func (*ListSystemServicesResponse) ProtoMessage() {}
 
 func (x *ListSystemServicesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[74]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[76]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3875,7 +4013,7 @@ func (x *ListSystemServicesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSystemServicesResponse.ProtoReflect.Descriptor instead.
 func (*ListSystemServicesResponse) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{74}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{76}
 }
 
 func (x *ListSystemServicesResponse) GetServices() []*SystemService {
@@ -3895,7 +4033,7 @@ type ControlSystemServiceRequest struct {
 
 func (x *ControlSystemServiceRequest) Reset() {
 	*x = ControlSystemServiceRequest{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[75]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[77]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3907,7 +4045,7 @@ func (x *ControlSystemServiceRequest) String() string {
 func (*ControlSystemServiceRequest) ProtoMessage() {}
 
 func (x *ControlSystemServiceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[75]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[77]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3920,7 +4058,7 @@ func (x *ControlSystemServiceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ControlSystemServiceRequest.ProtoReflect.Descriptor instead.
 func (*ControlSystemServiceRequest) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{75}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{77}
 }
 
 func (x *ControlSystemServiceRequest) GetUnit() string {
@@ -3945,7 +4083,7 @@ type ControlSystemServiceResponse struct {
 
 func (x *ControlSystemServiceResponse) Reset() {
 	*x = ControlSystemServiceResponse{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[76]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[78]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3957,7 +4095,7 @@ func (x *ControlSystemServiceResponse) String() string {
 func (*ControlSystemServiceResponse) ProtoMessage() {}
 
 func (x *ControlSystemServiceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[76]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[78]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3970,7 +4108,7 @@ func (x *ControlSystemServiceResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ControlSystemServiceResponse.ProtoReflect.Descriptor instead.
 func (*ControlSystemServiceResponse) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{76}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{78}
 }
 
 type RebootServerRequest struct {
@@ -3981,7 +4119,7 @@ type RebootServerRequest struct {
 
 func (x *RebootServerRequest) Reset() {
 	*x = RebootServerRequest{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[77]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[79]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3993,7 +4131,7 @@ func (x *RebootServerRequest) String() string {
 func (*RebootServerRequest) ProtoMessage() {}
 
 func (x *RebootServerRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[77]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[79]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4006,7 +4144,7 @@ func (x *RebootServerRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RebootServerRequest.ProtoReflect.Descriptor instead.
 func (*RebootServerRequest) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{77}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{79}
 }
 
 type RebootServerResponse struct {
@@ -4017,7 +4155,7 @@ type RebootServerResponse struct {
 
 func (x *RebootServerResponse) Reset() {
 	*x = RebootServerResponse{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[78]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[80]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4029,7 +4167,7 @@ func (x *RebootServerResponse) String() string {
 func (*RebootServerResponse) ProtoMessage() {}
 
 func (x *RebootServerResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[78]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[80]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4042,7 +4180,7 @@ func (x *RebootServerResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RebootServerResponse.ProtoReflect.Descriptor instead.
 func (*RebootServerResponse) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{78}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{80}
 }
 
 type GetMetricHistoryRequest struct {
@@ -4055,7 +4193,7 @@ type GetMetricHistoryRequest struct {
 
 func (x *GetMetricHistoryRequest) Reset() {
 	*x = GetMetricHistoryRequest{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[79]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[81]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4067,7 +4205,7 @@ func (x *GetMetricHistoryRequest) String() string {
 func (*GetMetricHistoryRequest) ProtoMessage() {}
 
 func (x *GetMetricHistoryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[79]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[81]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4080,7 +4218,7 @@ func (x *GetMetricHistoryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMetricHistoryRequest.ProtoReflect.Descriptor instead.
 func (*GetMetricHistoryRequest) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{79}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{81}
 }
 
 func (x *GetMetricHistoryRequest) GetSpanSeconds() uint32 {
@@ -4106,7 +4244,7 @@ type MetricSample struct {
 
 func (x *MetricSample) Reset() {
 	*x = MetricSample{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[80]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[82]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4118,7 +4256,7 @@ func (x *MetricSample) String() string {
 func (*MetricSample) ProtoMessage() {}
 
 func (x *MetricSample) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[80]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[82]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4131,7 +4269,7 @@ func (x *MetricSample) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MetricSample.ProtoReflect.Descriptor instead.
 func (*MetricSample) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{80}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{82}
 }
 
 func (x *MetricSample) GetTime() int64 {
@@ -4187,7 +4325,7 @@ type GetMetricHistoryResponse struct {
 
 func (x *GetMetricHistoryResponse) Reset() {
 	*x = GetMetricHistoryResponse{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[81]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[83]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4199,7 +4337,7 @@ func (x *GetMetricHistoryResponse) String() string {
 func (*GetMetricHistoryResponse) ProtoMessage() {}
 
 func (x *GetMetricHistoryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[81]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[83]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4212,7 +4350,7 @@ func (x *GetMetricHistoryResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMetricHistoryResponse.ProtoReflect.Descriptor instead.
 func (*GetMetricHistoryResponse) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{81}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{83}
 }
 
 func (x *GetMetricHistoryResponse) GetSamples() []*MetricSample {
@@ -4237,7 +4375,7 @@ type GetCapabilitiesRequest struct {
 
 func (x *GetCapabilitiesRequest) Reset() {
 	*x = GetCapabilitiesRequest{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[82]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[84]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4249,7 +4387,7 @@ func (x *GetCapabilitiesRequest) String() string {
 func (*GetCapabilitiesRequest) ProtoMessage() {}
 
 func (x *GetCapabilitiesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[82]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[84]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4262,7 +4400,7 @@ func (x *GetCapabilitiesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCapabilitiesRequest.ProtoReflect.Descriptor instead.
 func (*GetCapabilitiesRequest) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{82}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{84}
 }
 
 type GetCapabilitiesResponse struct {
@@ -4280,14 +4418,18 @@ type GetCapabilitiesResponse struct {
 	PublicAddresses []string `protobuf:"bytes,6,rep,name=public_addresses,json=publicAddresses,proto3" json:"public_addresses,omitempty"`
 	// True when the Node port guard is attached and no ephemeral port falls in the Node range (20000-29999), so no other
 	// user can take a Node site's port. Added in protocol 3.
-	PortGuard     bool `protobuf:"varint,7,opt,name=port_guard,json=portGuard,proto3" json:"port_guard,omitempty"`
+	PortGuard bool `protobuf:"varint,7,opt,name=port_guard,json=portGuard,proto3" json:"port_guard,omitempty"`
+	// e.g. "0.13.9"; empty when uv isn't installed. Added in protocol 24.
+	UvVersion string `protobuf:"bytes,8,opt,name=uv_version,json=uvVersion,proto3" json:"uv_version,omitempty"`
+	// e.g. "1.4.4"; empty when Bun isn't installed. Added in protocol 24.
+	BunVersion    string `protobuf:"bytes,9,opt,name=bun_version,json=bunVersion,proto3" json:"bun_version,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetCapabilitiesResponse) Reset() {
 	*x = GetCapabilitiesResponse{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[83]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[85]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4299,7 +4441,7 @@ func (x *GetCapabilitiesResponse) String() string {
 func (*GetCapabilitiesResponse) ProtoMessage() {}
 
 func (x *GetCapabilitiesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[83]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[85]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4312,7 +4454,7 @@ func (x *GetCapabilitiesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCapabilitiesResponse.ProtoReflect.Descriptor instead.
 func (*GetCapabilitiesResponse) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{83}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{85}
 }
 
 func (x *GetCapabilitiesResponse) GetPhpVersions() []string {
@@ -4364,6 +4506,20 @@ func (x *GetCapabilitiesResponse) GetPortGuard() bool {
 	return false
 }
 
+func (x *GetCapabilitiesResponse) GetUvVersion() string {
+	if x != nil {
+		return x.UvVersion
+	}
+	return ""
+}
+
+func (x *GetCapabilitiesResponse) GetBunVersion() string {
+	if x != nil {
+		return x.BunVersion
+	}
+	return ""
+}
+
 type NetworkPeer struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -4377,7 +4533,7 @@ type NetworkPeer struct {
 
 func (x *NetworkPeer) Reset() {
 	*x = NetworkPeer{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[84]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[86]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4389,7 +4545,7 @@ func (x *NetworkPeer) String() string {
 func (*NetworkPeer) ProtoMessage() {}
 
 func (x *NetworkPeer) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[84]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[86]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4402,7 +4558,7 @@ func (x *NetworkPeer) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NetworkPeer.ProtoReflect.Descriptor instead.
 func (*NetworkPeer) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{84}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{86}
 }
 
 func (x *NetworkPeer) GetId() string {
@@ -4437,7 +4593,7 @@ type NetworkAddress struct {
 
 func (x *NetworkAddress) Reset() {
 	*x = NetworkAddress{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[85]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[87]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4449,7 +4605,7 @@ func (x *NetworkAddress) String() string {
 func (*NetworkAddress) ProtoMessage() {}
 
 func (x *NetworkAddress) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[85]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[87]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4462,7 +4618,7 @@ func (x *NetworkAddress) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NetworkAddress.ProtoReflect.Descriptor instead.
 func (*NetworkAddress) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{85}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{87}
 }
 
 func (x *NetworkAddress) GetAddress() string {
@@ -4490,7 +4646,7 @@ type NetworkService struct {
 
 func (x *NetworkService) Reset() {
 	*x = NetworkService{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[86]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[88]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4502,7 +4658,7 @@ func (x *NetworkService) String() string {
 func (*NetworkService) ProtoMessage() {}
 
 func (x *NetworkService) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[86]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[88]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4515,7 +4671,7 @@ func (x *NetworkService) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NetworkService.ProtoReflect.Descriptor instead.
 func (*NetworkService) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{86}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{88}
 }
 
 func (x *NetworkService) GetName() string {
@@ -4540,7 +4696,7 @@ type GetNetworkRequest struct {
 
 func (x *GetNetworkRequest) Reset() {
 	*x = GetNetworkRequest{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[87]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[89]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4552,7 +4708,7 @@ func (x *GetNetworkRequest) String() string {
 func (*GetNetworkRequest) ProtoMessage() {}
 
 func (x *GetNetworkRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[87]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[89]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4565,7 +4721,7 @@ func (x *GetNetworkRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetNetworkRequest.ProtoReflect.Descriptor instead.
 func (*GetNetworkRequest) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{87}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{89}
 }
 
 type GetNetworkResponse struct {
@@ -4588,7 +4744,7 @@ type GetNetworkResponse struct {
 
 func (x *GetNetworkResponse) Reset() {
 	*x = GetNetworkResponse{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[88]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[90]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4600,7 +4756,7 @@ func (x *GetNetworkResponse) String() string {
 func (*GetNetworkResponse) ProtoMessage() {}
 
 func (x *GetNetworkResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[88]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[90]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4613,7 +4769,7 @@ func (x *GetNetworkResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetNetworkResponse.ProtoReflect.Descriptor instead.
 func (*GetNetworkResponse) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{88}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{90}
 }
 
 func (x *GetNetworkResponse) GetAddress() string {
@@ -4677,7 +4833,7 @@ type PutNetworkRequest struct {
 
 func (x *PutNetworkRequest) Reset() {
 	*x = PutNetworkRequest{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[89]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[91]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4689,7 +4845,7 @@ func (x *PutNetworkRequest) String() string {
 func (*PutNetworkRequest) ProtoMessage() {}
 
 func (x *PutNetworkRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[89]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[91]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4702,7 +4858,7 @@ func (x *PutNetworkRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PutNetworkRequest.ProtoReflect.Descriptor instead.
 func (*PutNetworkRequest) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{89}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{91}
 }
 
 func (x *PutNetworkRequest) GetAddress() string {
@@ -4735,7 +4891,7 @@ type PutNetworkResponse struct {
 
 func (x *PutNetworkResponse) Reset() {
 	*x = PutNetworkResponse{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[90]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[92]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4747,7 +4903,7 @@ func (x *PutNetworkResponse) String() string {
 func (*PutNetworkResponse) ProtoMessage() {}
 
 func (x *PutNetworkResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[90]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[92]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4760,7 +4916,7 @@ func (x *PutNetworkResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PutNetworkResponse.ProtoReflect.Descriptor instead.
 func (*PutNetworkResponse) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{90}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{92}
 }
 
 func (x *PutNetworkResponse) GetRevision() uint64 {
@@ -4780,7 +4936,7 @@ type CheckConnectionRequest struct {
 
 func (x *CheckConnectionRequest) Reset() {
 	*x = CheckConnectionRequest{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[91]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[93]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4792,7 +4948,7 @@ func (x *CheckConnectionRequest) String() string {
 func (*CheckConnectionRequest) ProtoMessage() {}
 
 func (x *CheckConnectionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[91]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[93]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4805,7 +4961,7 @@ func (x *CheckConnectionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckConnectionRequest.ProtoReflect.Descriptor instead.
 func (*CheckConnectionRequest) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{91}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{93}
 }
 
 func (x *CheckConnectionRequest) GetAddress() string {
@@ -4834,7 +4990,7 @@ type CheckConnectionResponse struct {
 
 func (x *CheckConnectionResponse) Reset() {
 	*x = CheckConnectionResponse{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[92]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[94]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4846,7 +5002,7 @@ func (x *CheckConnectionResponse) String() string {
 func (*CheckConnectionResponse) ProtoMessage() {}
 
 func (x *CheckConnectionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[92]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[94]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4859,7 +5015,7 @@ func (x *CheckConnectionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckConnectionResponse.ProtoReflect.Descriptor instead.
 func (*CheckConnectionResponse) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{92}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{94}
 }
 
 func (x *CheckConnectionResponse) GetResult() string {
@@ -4891,7 +5047,7 @@ type UpdateSettings struct {
 
 func (x *UpdateSettings) Reset() {
 	*x = UpdateSettings{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[93]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[95]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4903,7 +5059,7 @@ func (x *UpdateSettings) String() string {
 func (*UpdateSettings) ProtoMessage() {}
 
 func (x *UpdateSettings) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[93]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[95]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4916,7 +5072,7 @@ func (x *UpdateSettings) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateSettings.ProtoReflect.Descriptor instead.
 func (*UpdateSettings) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{93}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{95}
 }
 
 func (x *UpdateSettings) GetDatabases() bool {
@@ -4948,7 +5104,7 @@ type GetUpdatesRequest struct {
 
 func (x *GetUpdatesRequest) Reset() {
 	*x = GetUpdatesRequest{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[94]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[96]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4960,7 +5116,7 @@ func (x *GetUpdatesRequest) String() string {
 func (*GetUpdatesRequest) ProtoMessage() {}
 
 func (x *GetUpdatesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[94]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[96]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4973,7 +5129,7 @@ func (x *GetUpdatesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUpdatesRequest.ProtoReflect.Descriptor instead.
 func (*GetUpdatesRequest) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{94}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{96}
 }
 
 type GetUpdatesResponse struct {
@@ -4996,7 +5152,7 @@ type GetUpdatesResponse struct {
 
 func (x *GetUpdatesResponse) Reset() {
 	*x = GetUpdatesResponse{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[95]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[97]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5008,7 +5164,7 @@ func (x *GetUpdatesResponse) String() string {
 func (*GetUpdatesResponse) ProtoMessage() {}
 
 func (x *GetUpdatesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[95]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[97]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5021,7 +5177,7 @@ func (x *GetUpdatesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUpdatesResponse.ProtoReflect.Descriptor instead.
 func (*GetUpdatesResponse) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{95}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{97}
 }
 
 func (x *GetUpdatesResponse) GetSettings() *UpdateSettings {
@@ -5083,7 +5239,7 @@ type PutUpdateSettingsRequest struct {
 
 func (x *PutUpdateSettingsRequest) Reset() {
 	*x = PutUpdateSettingsRequest{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[96]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[98]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5095,7 +5251,7 @@ func (x *PutUpdateSettingsRequest) String() string {
 func (*PutUpdateSettingsRequest) ProtoMessage() {}
 
 func (x *PutUpdateSettingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[96]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[98]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5108,7 +5264,7 @@ func (x *PutUpdateSettingsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PutUpdateSettingsRequest.ProtoReflect.Descriptor instead.
 func (*PutUpdateSettingsRequest) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{96}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{98}
 }
 
 func (x *PutUpdateSettingsRequest) GetSettings() *UpdateSettings {
@@ -5134,7 +5290,7 @@ type PutUpdateSettingsResponse struct {
 
 func (x *PutUpdateSettingsResponse) Reset() {
 	*x = PutUpdateSettingsResponse{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[97]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[99]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5146,7 +5302,7 @@ func (x *PutUpdateSettingsResponse) String() string {
 func (*PutUpdateSettingsResponse) ProtoMessage() {}
 
 func (x *PutUpdateSettingsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[97]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[99]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5159,7 +5315,7 @@ func (x *PutUpdateSettingsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PutUpdateSettingsResponse.ProtoReflect.Descriptor instead.
 func (*PutUpdateSettingsResponse) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{97}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{99}
 }
 
 func (x *PutUpdateSettingsResponse) GetRevision() uint64 {
@@ -5177,7 +5333,7 @@ type GetMeilisearchConfigRequest struct {
 
 func (x *GetMeilisearchConfigRequest) Reset() {
 	*x = GetMeilisearchConfigRequest{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[98]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[100]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5189,7 +5345,7 @@ func (x *GetMeilisearchConfigRequest) String() string {
 func (*GetMeilisearchConfigRequest) ProtoMessage() {}
 
 func (x *GetMeilisearchConfigRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[98]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[100]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5202,7 +5358,7 @@ func (x *GetMeilisearchConfigRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMeilisearchConfigRequest.ProtoReflect.Descriptor instead.
 func (*GetMeilisearchConfigRequest) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{98}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{100}
 }
 
 type GetMeilisearchConfigResponse struct {
@@ -5216,7 +5372,7 @@ type GetMeilisearchConfigResponse struct {
 
 func (x *GetMeilisearchConfigResponse) Reset() {
 	*x = GetMeilisearchConfigResponse{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[99]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[101]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5228,7 +5384,7 @@ func (x *GetMeilisearchConfigResponse) String() string {
 func (*GetMeilisearchConfigResponse) ProtoMessage() {}
 
 func (x *GetMeilisearchConfigResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[99]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[101]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5241,7 +5397,7 @@ func (x *GetMeilisearchConfigResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMeilisearchConfigResponse.ProtoReflect.Descriptor instead.
 func (*GetMeilisearchConfigResponse) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{99}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{101}
 }
 
 func (x *GetMeilisearchConfigResponse) GetInstalled() bool {
@@ -5267,7 +5423,7 @@ type PutMeilisearchConfigRequest struct {
 
 func (x *PutMeilisearchConfigRequest) Reset() {
 	*x = PutMeilisearchConfigRequest{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[100]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[102]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5279,7 +5435,7 @@ func (x *PutMeilisearchConfigRequest) String() string {
 func (*PutMeilisearchConfigRequest) ProtoMessage() {}
 
 func (x *PutMeilisearchConfigRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[100]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[102]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5292,7 +5448,7 @@ func (x *PutMeilisearchConfigRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PutMeilisearchConfigRequest.ProtoReflect.Descriptor instead.
 func (*PutMeilisearchConfigRequest) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{100}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{102}
 }
 
 func (x *PutMeilisearchConfigRequest) GetConfig() string {
@@ -5310,7 +5466,7 @@ type PutMeilisearchConfigResponse struct {
 
 func (x *PutMeilisearchConfigResponse) Reset() {
 	*x = PutMeilisearchConfigResponse{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[101]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[103]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5322,7 +5478,7 @@ func (x *PutMeilisearchConfigResponse) String() string {
 func (*PutMeilisearchConfigResponse) ProtoMessage() {}
 
 func (x *PutMeilisearchConfigResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[101]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[103]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5335,7 +5491,7 @@ func (x *PutMeilisearchConfigResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PutMeilisearchConfigResponse.ProtoReflect.Descriptor instead.
 func (*PutMeilisearchConfigResponse) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{101}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{103}
 }
 
 type ListMeilisearchKeysRequest struct {
@@ -5346,7 +5502,7 @@ type ListMeilisearchKeysRequest struct {
 
 func (x *ListMeilisearchKeysRequest) Reset() {
 	*x = ListMeilisearchKeysRequest{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[102]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[104]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5358,7 +5514,7 @@ func (x *ListMeilisearchKeysRequest) String() string {
 func (*ListMeilisearchKeysRequest) ProtoMessage() {}
 
 func (x *ListMeilisearchKeysRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[102]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[104]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5371,7 +5527,7 @@ func (x *ListMeilisearchKeysRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMeilisearchKeysRequest.ProtoReflect.Descriptor instead.
 func (*ListMeilisearchKeysRequest) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{102}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{104}
 }
 
 type MeilisearchKey struct {
@@ -5391,7 +5547,7 @@ type MeilisearchKey struct {
 
 func (x *MeilisearchKey) Reset() {
 	*x = MeilisearchKey{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[103]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[105]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5403,7 +5559,7 @@ func (x *MeilisearchKey) String() string {
 func (*MeilisearchKey) ProtoMessage() {}
 
 func (x *MeilisearchKey) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[103]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[105]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5416,7 +5572,7 @@ func (x *MeilisearchKey) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MeilisearchKey.ProtoReflect.Descriptor instead.
 func (*MeilisearchKey) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{103}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{105}
 }
 
 func (x *MeilisearchKey) GetName() string {
@@ -5470,7 +5626,7 @@ type ListMeilisearchKeysResponse struct {
 
 func (x *ListMeilisearchKeysResponse) Reset() {
 	*x = ListMeilisearchKeysResponse{}
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[104]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[106]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5482,7 +5638,7 @@ func (x *ListMeilisearchKeysResponse) String() string {
 func (*ListMeilisearchKeysResponse) ProtoMessage() {}
 
 func (x *ListMeilisearchKeysResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_serverdog_agent_v1_server_proto_msgTypes[104]
+	mi := &file_serverdog_agent_v1_server_proto_msgTypes[106]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5495,7 +5651,7 @@ func (x *ListMeilisearchKeysResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMeilisearchKeysResponse.ProtoReflect.Descriptor instead.
 func (*ListMeilisearchKeysResponse) Descriptor() ([]byte, []int) {
-	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{104}
+	return file_serverdog_agent_v1_server_proto_rawDescGZIP(), []int{106}
 }
 
 func (x *ListMeilisearchKeysResponse) GetKeys() []*MeilisearchKey {
@@ -5672,6 +5828,10 @@ const file_serverdog_agent_v1_server_proto_rawDesc = "" +
 	" RestartBackgroundProcessResponse\"\x1a\n" +
 	"\x18InstallFrankenPHPRequest\"5\n" +
 	"\x19InstallFrankenPHPResponse\x12\x18\n" +
+	"\aversion\x18\x01 \x01(\tR\aversion\"B\n" +
+	"\x12InstallToolRequest\x12,\n" +
+	"\x04tool\x18\x01 \x01(\x0e2\x18.serverdog.agent.v1.ToolR\x04tool\"/\n" +
+	"\x13InstallToolResponse\x12\x18\n" +
 	"\aversion\x18\x01 \x01(\tR\aversion\"\xa2\x01\n" +
 	"\vPHPSettings\x12\x1b\n" +
 	"\tupload_mb\x18\x01 \x01(\rR\buploadMb\x122\n" +
@@ -5748,7 +5908,7 @@ const file_serverdog_agent_v1_server_proto_rawDesc = "" +
 	"\x18GetMetricHistoryResponse\x12:\n" +
 	"\asamples\x18\x01 \x03(\v2 .serverdog.agent.v1.MetricSampleR\asamples\x12!\n" +
 	"\fstep_seconds\x18\x02 \x01(\rR\vstepSeconds\"\x18\n" +
-	"\x16GetCapabilitiesRequest\"\xa2\x02\n" +
+	"\x16GetCapabilitiesRequest\"\xe2\x02\n" +
 	"\x17GetCapabilitiesResponse\x12!\n" +
 	"\fphp_versions\x18\x01 \x03(\tR\vphpVersions\x12'\n" +
 	"\x0fdatabase_engine\x18\x02 \x01(\tR\x0edatabaseEngine\x12)\n" +
@@ -5757,7 +5917,11 @@ const file_serverdog_agent_v1_server_proto_rawDesc = "" +
 	"\rnginx_version\x18\x05 \x01(\tR\fnginxVersion\x12)\n" +
 	"\x10public_addresses\x18\x06 \x03(\tR\x0fpublicAddresses\x12\x1d\n" +
 	"\n" +
-	"port_guard\x18\a \x01(\bR\tportGuard\"K\n" +
+	"port_guard\x18\a \x01(\bR\tportGuard\x12\x1d\n" +
+	"\n" +
+	"uv_version\x18\b \x01(\tR\tuvVersion\x12\x1f\n" +
+	"\vbun_version\x18\t \x01(\tR\n" +
+	"bunVersion\"K\n" +
 	"\vNetworkPeer\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x18\n" +
@@ -5828,13 +5992,17 @@ const file_serverdog_agent_v1_server_proto_rawDesc = "" +
 	"\n" +
 	"expires_at\x18\x06 \x01(\tR\texpiresAt\"U\n" +
 	"\x1bListMeilisearchKeysResponse\x126\n" +
-	"\x04keys\x18\x01 \x03(\v2\".serverdog.agent.v1.MeilisearchKeyR\x04keys*\x99\x01\n" +
+	"\x04keys\x18\x01 \x03(\v2\".serverdog.agent.v1.MeilisearchKeyR\x04keys*7\n" +
+	"\x04Tool\x12\x14\n" +
+	"\x10TOOL_UNSPECIFIED\x10\x00\x12\v\n" +
+	"\aTOOL_UV\x10\x01\x12\f\n" +
+	"\bTOOL_BUN\x10\x02*\x99\x01\n" +
 	"\rServiceAction\x12\x1e\n" +
 	"\x1aSERVICE_ACTION_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14SERVICE_ACTION_START\x10\x01\x12\x17\n" +
 	"\x13SERVICE_ACTION_STOP\x10\x02\x12\x1a\n" +
 	"\x16SERVICE_ACTION_RESTART\x10\x03\x12\x19\n" +
-	"\x15SERVICE_ACTION_RELOAD\x10\x042\xe5$\n" +
+	"\x15SERVICE_ACTION_RELOAD\x10\x042\xc5%\n" +
 	"\rServerService\x12j\n" +
 	"\x0fGetCapabilities\x12*.serverdog.agent.v1.GetCapabilitiesRequest\x1a+.serverdog.agent.v1.GetCapabilitiesResponse\x12p\n" +
 	"\x11ListScheduledJobs\x12,.serverdog.agent.v1.ListScheduledJobsRequest\x1a-.serverdog.agent.v1.ListScheduledJobsResponse\x12m\n" +
@@ -5842,7 +6010,8 @@ const file_serverdog_agent_v1_server_proto_rawDesc = "" +
 	"\x17ListBackgroundProcesses\x122.serverdog.agent.v1.ListBackgroundProcessesRequest\x1a3.serverdog.agent.v1.ListBackgroundProcessesResponse\x12\x7f\n" +
 	"\x16PutBackgroundProcesses\x121.serverdog.agent.v1.PutBackgroundProcessesRequest\x1a2.serverdog.agent.v1.PutBackgroundProcessesResponse\x12\x85\x01\n" +
 	"\x18RestartBackgroundProcess\x123.serverdog.agent.v1.RestartBackgroundProcessRequest\x1a4.serverdog.agent.v1.RestartBackgroundProcessResponse\x12p\n" +
-	"\x11InstallFrankenPHP\x12,.serverdog.agent.v1.InstallFrankenPHPRequest\x1a-.serverdog.agent.v1.InstallFrankenPHPResponse\x12p\n" +
+	"\x11InstallFrankenPHP\x12,.serverdog.agent.v1.InstallFrankenPHPRequest\x1a-.serverdog.agent.v1.InstallFrankenPHPResponse\x12^\n" +
+	"\vInstallTool\x12&.serverdog.agent.v1.InstallToolRequest\x1a'.serverdog.agent.v1.InstallToolResponse\x12p\n" +
 	"\x11GetServerSettings\x12,.serverdog.agent.v1.GetServerSettingsRequest\x1a-.serverdog.agent.v1.GetServerSettingsResponse\x12^\n" +
 	"\vSetTimezone\x12&.serverdog.agent.v1.SetTimezoneRequest\x1a'.serverdog.agent.v1.SetTimezoneResponse\x12m\n" +
 	"\x10SetRedisPassword\x12+.serverdog.agent.v1.SetRedisPasswordRequest\x1a,.serverdog.agent.v1.SetRedisPasswordResponse\x12s\n" +
@@ -5898,240 +6067,246 @@ func file_serverdog_agent_v1_server_proto_rawDescGZIP() []byte {
 	return file_serverdog_agent_v1_server_proto_rawDescData
 }
 
-var file_serverdog_agent_v1_server_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_serverdog_agent_v1_server_proto_msgTypes = make([]protoimpl.MessageInfo, 106)
+var file_serverdog_agent_v1_server_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_serverdog_agent_v1_server_proto_msgTypes = make([]protoimpl.MessageInfo, 108)
 var file_serverdog_agent_v1_server_proto_goTypes = []any{
-	(ServiceAction)(0),                       // 0: serverdog.agent.v1.ServiceAction
-	(*Insight)(nil),                          // 1: serverdog.agent.v1.Insight
-	(*GetInsightsRequest)(nil),               // 2: serverdog.agent.v1.GetInsightsRequest
-	(*GetInsightsResponse)(nil),              // 3: serverdog.agent.v1.GetInsightsResponse
-	(*FixInsightRequest)(nil),                // 4: serverdog.agent.v1.FixInsightRequest
-	(*FixInsightResponse)(nil),               // 5: serverdog.agent.v1.FixInsightResponse
-	(*FirewallRule)(nil),                     // 6: serverdog.agent.v1.FirewallRule
-	(*GetFirewallRequest)(nil),               // 7: serverdog.agent.v1.GetFirewallRequest
-	(*GetFirewallResponse)(nil),              // 8: serverdog.agent.v1.GetFirewallResponse
-	(*PutFirewallRequest)(nil),               // 9: serverdog.agent.v1.PutFirewallRequest
-	(*PutFirewallResponse)(nil),              // 10: serverdog.agent.v1.PutFirewallResponse
-	(*SSHKey)(nil),                           // 11: serverdog.agent.v1.SSHKey
-	(*OtherSSHKey)(nil),                      // 12: serverdog.agent.v1.OtherSSHKey
-	(*GetSSHKeysRequest)(nil),                // 13: serverdog.agent.v1.GetSSHKeysRequest
-	(*GetSSHKeysResponse)(nil),               // 14: serverdog.agent.v1.GetSSHKeysResponse
-	(*PutSSHKeysRequest)(nil),                // 15: serverdog.agent.v1.PutSSHKeysRequest
-	(*PutSSHKeysResponse)(nil),               // 16: serverdog.agent.v1.PutSSHKeysResponse
-	(*PHPVersionUse)(nil),                    // 17: serverdog.agent.v1.PHPVersionUse
-	(*GetPHPVersionsRequest)(nil),            // 18: serverdog.agent.v1.GetPHPVersionsRequest
-	(*GetPHPVersionsResponse)(nil),           // 19: serverdog.agent.v1.GetPHPVersionsResponse
-	(*InstallPHPVersionRequest)(nil),         // 20: serverdog.agent.v1.InstallPHPVersionRequest
-	(*InstallPHPVersionResponse)(nil),        // 21: serverdog.agent.v1.InstallPHPVersionResponse
-	(*RemovePHPVersionRequest)(nil),          // 22: serverdog.agent.v1.RemovePHPVersionRequest
-	(*RemovePHPVersionResponse)(nil),         // 23: serverdog.agent.v1.RemovePHPVersionResponse
-	(*SetCLIPHPVersionRequest)(nil),          // 24: serverdog.agent.v1.SetCLIPHPVersionRequest
-	(*SetCLIPHPVersionResponse)(nil),         // 25: serverdog.agent.v1.SetCLIPHPVersionResponse
-	(*LogSource)(nil),                        // 26: serverdog.agent.v1.LogSource
-	(*ListLogsRequest)(nil),                  // 27: serverdog.agent.v1.ListLogsRequest
-	(*ListLogsResponse)(nil),                 // 28: serverdog.agent.v1.ListLogsResponse
-	(*ReadLogRequest)(nil),                   // 29: serverdog.agent.v1.ReadLogRequest
-	(*ReadLogResponse)(nil),                  // 30: serverdog.agent.v1.ReadLogResponse
-	(*Notifications)(nil),                    // 31: serverdog.agent.v1.Notifications
-	(*GetNotificationsRequest)(nil),          // 32: serverdog.agent.v1.GetNotificationsRequest
-	(*GetNotificationsResponse)(nil),         // 33: serverdog.agent.v1.GetNotificationsResponse
-	(*PutNotificationsRequest)(nil),          // 34: serverdog.agent.v1.PutNotificationsRequest
-	(*PutNotificationsResponse)(nil),         // 35: serverdog.agent.v1.PutNotificationsResponse
-	(*TestNotificationsRequest)(nil),         // 36: serverdog.agent.v1.TestNotificationsRequest
-	(*TestNotificationsResponse)(nil),        // 37: serverdog.agent.v1.TestNotificationsResponse
-	(*ScheduledJob)(nil),                     // 38: serverdog.agent.v1.ScheduledJob
-	(*ListScheduledJobsRequest)(nil),         // 39: serverdog.agent.v1.ListScheduledJobsRequest
-	(*ListScheduledJobsResponse)(nil),        // 40: serverdog.agent.v1.ListScheduledJobsResponse
-	(*PutScheduledJobsRequest)(nil),          // 41: serverdog.agent.v1.PutScheduledJobsRequest
-	(*PutScheduledJobsResponse)(nil),         // 42: serverdog.agent.v1.PutScheduledJobsResponse
-	(*BackgroundProcess)(nil),                // 43: serverdog.agent.v1.BackgroundProcess
-	(*ListBackgroundProcessesRequest)(nil),   // 44: serverdog.agent.v1.ListBackgroundProcessesRequest
-	(*ListBackgroundProcessesResponse)(nil),  // 45: serverdog.agent.v1.ListBackgroundProcessesResponse
-	(*PutBackgroundProcessesRequest)(nil),    // 46: serverdog.agent.v1.PutBackgroundProcessesRequest
-	(*PutBackgroundProcessesResponse)(nil),   // 47: serverdog.agent.v1.PutBackgroundProcessesResponse
-	(*RestartBackgroundProcessRequest)(nil),  // 48: serverdog.agent.v1.RestartBackgroundProcessRequest
-	(*RestartBackgroundProcessResponse)(nil), // 49: serverdog.agent.v1.RestartBackgroundProcessResponse
-	(*InstallFrankenPHPRequest)(nil),         // 50: serverdog.agent.v1.InstallFrankenPHPRequest
-	(*InstallFrankenPHPResponse)(nil),        // 51: serverdog.agent.v1.InstallFrankenPHPResponse
-	(*PHPSettings)(nil),                      // 52: serverdog.agent.v1.PHPSettings
-	(*GetPHPSettingsRequest)(nil),            // 53: serverdog.agent.v1.GetPHPSettingsRequest
-	(*GetPHPSettingsResponse)(nil),           // 54: serverdog.agent.v1.GetPHPSettingsResponse
-	(*PutPHPSettingsRequest)(nil),            // 55: serverdog.agent.v1.PutPHPSettingsRequest
-	(*PutPHPSettingsResponse)(nil),           // 56: serverdog.agent.v1.PutPHPSettingsResponse
-	(*ComposerCredential)(nil),               // 57: serverdog.agent.v1.ComposerCredential
-	(*GetComposerCredentialsRequest)(nil),    // 58: serverdog.agent.v1.GetComposerCredentialsRequest
-	(*GetComposerCredentialsResponse)(nil),   // 59: serverdog.agent.v1.GetComposerCredentialsResponse
-	(*PutComposerCredentialsRequest)(nil),    // 60: serverdog.agent.v1.PutComposerCredentialsRequest
-	(*PutComposerCredentialsResponse)(nil),   // 61: serverdog.agent.v1.PutComposerCredentialsResponse
-	(*NPMCredential)(nil),                    // 62: serverdog.agent.v1.NPMCredential
-	(*GetNPMCredentialsRequest)(nil),         // 63: serverdog.agent.v1.GetNPMCredentialsRequest
-	(*GetNPMCredentialsResponse)(nil),        // 64: serverdog.agent.v1.GetNPMCredentialsResponse
-	(*PutNPMCredentialsRequest)(nil),         // 65: serverdog.agent.v1.PutNPMCredentialsRequest
-	(*PutNPMCredentialsResponse)(nil),        // 66: serverdog.agent.v1.PutNPMCredentialsResponse
-	(*GetServerSettingsRequest)(nil),         // 67: serverdog.agent.v1.GetServerSettingsRequest
-	(*GetServerSettingsResponse)(nil),        // 68: serverdog.agent.v1.GetServerSettingsResponse
-	(*SetTimezoneRequest)(nil),               // 69: serverdog.agent.v1.SetTimezoneRequest
-	(*SetTimezoneResponse)(nil),              // 70: serverdog.agent.v1.SetTimezoneResponse
-	(*SetRedisPasswordRequest)(nil),          // 71: serverdog.agent.v1.SetRedisPasswordRequest
-	(*SetRedisPasswordResponse)(nil),         // 72: serverdog.agent.v1.SetRedisPasswordResponse
-	(*ListSystemServicesRequest)(nil),        // 73: serverdog.agent.v1.ListSystemServicesRequest
-	(*SystemService)(nil),                    // 74: serverdog.agent.v1.SystemService
-	(*ListSystemServicesResponse)(nil),       // 75: serverdog.agent.v1.ListSystemServicesResponse
-	(*ControlSystemServiceRequest)(nil),      // 76: serverdog.agent.v1.ControlSystemServiceRequest
-	(*ControlSystemServiceResponse)(nil),     // 77: serverdog.agent.v1.ControlSystemServiceResponse
-	(*RebootServerRequest)(nil),              // 78: serverdog.agent.v1.RebootServerRequest
-	(*RebootServerResponse)(nil),             // 79: serverdog.agent.v1.RebootServerResponse
-	(*GetMetricHistoryRequest)(nil),          // 80: serverdog.agent.v1.GetMetricHistoryRequest
-	(*MetricSample)(nil),                     // 81: serverdog.agent.v1.MetricSample
-	(*GetMetricHistoryResponse)(nil),         // 82: serverdog.agent.v1.GetMetricHistoryResponse
-	(*GetCapabilitiesRequest)(nil),           // 83: serverdog.agent.v1.GetCapabilitiesRequest
-	(*GetCapabilitiesResponse)(nil),          // 84: serverdog.agent.v1.GetCapabilitiesResponse
-	(*NetworkPeer)(nil),                      // 85: serverdog.agent.v1.NetworkPeer
-	(*NetworkAddress)(nil),                   // 86: serverdog.agent.v1.NetworkAddress
-	(*NetworkService)(nil),                   // 87: serverdog.agent.v1.NetworkService
-	(*GetNetworkRequest)(nil),                // 88: serverdog.agent.v1.GetNetworkRequest
-	(*GetNetworkResponse)(nil),               // 89: serverdog.agent.v1.GetNetworkResponse
-	(*PutNetworkRequest)(nil),                // 90: serverdog.agent.v1.PutNetworkRequest
-	(*PutNetworkResponse)(nil),               // 91: serverdog.agent.v1.PutNetworkResponse
-	(*CheckConnectionRequest)(nil),           // 92: serverdog.agent.v1.CheckConnectionRequest
-	(*CheckConnectionResponse)(nil),          // 93: serverdog.agent.v1.CheckConnectionResponse
-	(*UpdateSettings)(nil),                   // 94: serverdog.agent.v1.UpdateSettings
-	(*GetUpdatesRequest)(nil),                // 95: serverdog.agent.v1.GetUpdatesRequest
-	(*GetUpdatesResponse)(nil),               // 96: serverdog.agent.v1.GetUpdatesResponse
-	(*PutUpdateSettingsRequest)(nil),         // 97: serverdog.agent.v1.PutUpdateSettingsRequest
-	(*PutUpdateSettingsResponse)(nil),        // 98: serverdog.agent.v1.PutUpdateSettingsResponse
-	(*GetMeilisearchConfigRequest)(nil),      // 99: serverdog.agent.v1.GetMeilisearchConfigRequest
-	(*GetMeilisearchConfigResponse)(nil),     // 100: serverdog.agent.v1.GetMeilisearchConfigResponse
-	(*PutMeilisearchConfigRequest)(nil),      // 101: serverdog.agent.v1.PutMeilisearchConfigRequest
-	(*PutMeilisearchConfigResponse)(nil),     // 102: serverdog.agent.v1.PutMeilisearchConfigResponse
-	(*ListMeilisearchKeysRequest)(nil),       // 103: serverdog.agent.v1.ListMeilisearchKeysRequest
-	(*MeilisearchKey)(nil),                   // 104: serverdog.agent.v1.MeilisearchKey
-	(*ListMeilisearchKeysResponse)(nil),      // 105: serverdog.agent.v1.ListMeilisearchKeysResponse
-	nil,                                      // 106: serverdog.agent.v1.Insight.ValuesEntry
+	(Tool)(0),                                // 0: serverdog.agent.v1.Tool
+	(ServiceAction)(0),                       // 1: serverdog.agent.v1.ServiceAction
+	(*Insight)(nil),                          // 2: serverdog.agent.v1.Insight
+	(*GetInsightsRequest)(nil),               // 3: serverdog.agent.v1.GetInsightsRequest
+	(*GetInsightsResponse)(nil),              // 4: serverdog.agent.v1.GetInsightsResponse
+	(*FixInsightRequest)(nil),                // 5: serverdog.agent.v1.FixInsightRequest
+	(*FixInsightResponse)(nil),               // 6: serverdog.agent.v1.FixInsightResponse
+	(*FirewallRule)(nil),                     // 7: serverdog.agent.v1.FirewallRule
+	(*GetFirewallRequest)(nil),               // 8: serverdog.agent.v1.GetFirewallRequest
+	(*GetFirewallResponse)(nil),              // 9: serverdog.agent.v1.GetFirewallResponse
+	(*PutFirewallRequest)(nil),               // 10: serverdog.agent.v1.PutFirewallRequest
+	(*PutFirewallResponse)(nil),              // 11: serverdog.agent.v1.PutFirewallResponse
+	(*SSHKey)(nil),                           // 12: serverdog.agent.v1.SSHKey
+	(*OtherSSHKey)(nil),                      // 13: serverdog.agent.v1.OtherSSHKey
+	(*GetSSHKeysRequest)(nil),                // 14: serverdog.agent.v1.GetSSHKeysRequest
+	(*GetSSHKeysResponse)(nil),               // 15: serverdog.agent.v1.GetSSHKeysResponse
+	(*PutSSHKeysRequest)(nil),                // 16: serverdog.agent.v1.PutSSHKeysRequest
+	(*PutSSHKeysResponse)(nil),               // 17: serverdog.agent.v1.PutSSHKeysResponse
+	(*PHPVersionUse)(nil),                    // 18: serverdog.agent.v1.PHPVersionUse
+	(*GetPHPVersionsRequest)(nil),            // 19: serverdog.agent.v1.GetPHPVersionsRequest
+	(*GetPHPVersionsResponse)(nil),           // 20: serverdog.agent.v1.GetPHPVersionsResponse
+	(*InstallPHPVersionRequest)(nil),         // 21: serverdog.agent.v1.InstallPHPVersionRequest
+	(*InstallPHPVersionResponse)(nil),        // 22: serverdog.agent.v1.InstallPHPVersionResponse
+	(*RemovePHPVersionRequest)(nil),          // 23: serverdog.agent.v1.RemovePHPVersionRequest
+	(*RemovePHPVersionResponse)(nil),         // 24: serverdog.agent.v1.RemovePHPVersionResponse
+	(*SetCLIPHPVersionRequest)(nil),          // 25: serverdog.agent.v1.SetCLIPHPVersionRequest
+	(*SetCLIPHPVersionResponse)(nil),         // 26: serverdog.agent.v1.SetCLIPHPVersionResponse
+	(*LogSource)(nil),                        // 27: serverdog.agent.v1.LogSource
+	(*ListLogsRequest)(nil),                  // 28: serverdog.agent.v1.ListLogsRequest
+	(*ListLogsResponse)(nil),                 // 29: serverdog.agent.v1.ListLogsResponse
+	(*ReadLogRequest)(nil),                   // 30: serverdog.agent.v1.ReadLogRequest
+	(*ReadLogResponse)(nil),                  // 31: serverdog.agent.v1.ReadLogResponse
+	(*Notifications)(nil),                    // 32: serverdog.agent.v1.Notifications
+	(*GetNotificationsRequest)(nil),          // 33: serverdog.agent.v1.GetNotificationsRequest
+	(*GetNotificationsResponse)(nil),         // 34: serverdog.agent.v1.GetNotificationsResponse
+	(*PutNotificationsRequest)(nil),          // 35: serverdog.agent.v1.PutNotificationsRequest
+	(*PutNotificationsResponse)(nil),         // 36: serverdog.agent.v1.PutNotificationsResponse
+	(*TestNotificationsRequest)(nil),         // 37: serverdog.agent.v1.TestNotificationsRequest
+	(*TestNotificationsResponse)(nil),        // 38: serverdog.agent.v1.TestNotificationsResponse
+	(*ScheduledJob)(nil),                     // 39: serverdog.agent.v1.ScheduledJob
+	(*ListScheduledJobsRequest)(nil),         // 40: serverdog.agent.v1.ListScheduledJobsRequest
+	(*ListScheduledJobsResponse)(nil),        // 41: serverdog.agent.v1.ListScheduledJobsResponse
+	(*PutScheduledJobsRequest)(nil),          // 42: serverdog.agent.v1.PutScheduledJobsRequest
+	(*PutScheduledJobsResponse)(nil),         // 43: serverdog.agent.v1.PutScheduledJobsResponse
+	(*BackgroundProcess)(nil),                // 44: serverdog.agent.v1.BackgroundProcess
+	(*ListBackgroundProcessesRequest)(nil),   // 45: serverdog.agent.v1.ListBackgroundProcessesRequest
+	(*ListBackgroundProcessesResponse)(nil),  // 46: serverdog.agent.v1.ListBackgroundProcessesResponse
+	(*PutBackgroundProcessesRequest)(nil),    // 47: serverdog.agent.v1.PutBackgroundProcessesRequest
+	(*PutBackgroundProcessesResponse)(nil),   // 48: serverdog.agent.v1.PutBackgroundProcessesResponse
+	(*RestartBackgroundProcessRequest)(nil),  // 49: serverdog.agent.v1.RestartBackgroundProcessRequest
+	(*RestartBackgroundProcessResponse)(nil), // 50: serverdog.agent.v1.RestartBackgroundProcessResponse
+	(*InstallFrankenPHPRequest)(nil),         // 51: serverdog.agent.v1.InstallFrankenPHPRequest
+	(*InstallFrankenPHPResponse)(nil),        // 52: serverdog.agent.v1.InstallFrankenPHPResponse
+	(*InstallToolRequest)(nil),               // 53: serverdog.agent.v1.InstallToolRequest
+	(*InstallToolResponse)(nil),              // 54: serverdog.agent.v1.InstallToolResponse
+	(*PHPSettings)(nil),                      // 55: serverdog.agent.v1.PHPSettings
+	(*GetPHPSettingsRequest)(nil),            // 56: serverdog.agent.v1.GetPHPSettingsRequest
+	(*GetPHPSettingsResponse)(nil),           // 57: serverdog.agent.v1.GetPHPSettingsResponse
+	(*PutPHPSettingsRequest)(nil),            // 58: serverdog.agent.v1.PutPHPSettingsRequest
+	(*PutPHPSettingsResponse)(nil),           // 59: serverdog.agent.v1.PutPHPSettingsResponse
+	(*ComposerCredential)(nil),               // 60: serverdog.agent.v1.ComposerCredential
+	(*GetComposerCredentialsRequest)(nil),    // 61: serverdog.agent.v1.GetComposerCredentialsRequest
+	(*GetComposerCredentialsResponse)(nil),   // 62: serverdog.agent.v1.GetComposerCredentialsResponse
+	(*PutComposerCredentialsRequest)(nil),    // 63: serverdog.agent.v1.PutComposerCredentialsRequest
+	(*PutComposerCredentialsResponse)(nil),   // 64: serverdog.agent.v1.PutComposerCredentialsResponse
+	(*NPMCredential)(nil),                    // 65: serverdog.agent.v1.NPMCredential
+	(*GetNPMCredentialsRequest)(nil),         // 66: serverdog.agent.v1.GetNPMCredentialsRequest
+	(*GetNPMCredentialsResponse)(nil),        // 67: serverdog.agent.v1.GetNPMCredentialsResponse
+	(*PutNPMCredentialsRequest)(nil),         // 68: serverdog.agent.v1.PutNPMCredentialsRequest
+	(*PutNPMCredentialsResponse)(nil),        // 69: serverdog.agent.v1.PutNPMCredentialsResponse
+	(*GetServerSettingsRequest)(nil),         // 70: serverdog.agent.v1.GetServerSettingsRequest
+	(*GetServerSettingsResponse)(nil),        // 71: serverdog.agent.v1.GetServerSettingsResponse
+	(*SetTimezoneRequest)(nil),               // 72: serverdog.agent.v1.SetTimezoneRequest
+	(*SetTimezoneResponse)(nil),              // 73: serverdog.agent.v1.SetTimezoneResponse
+	(*SetRedisPasswordRequest)(nil),          // 74: serverdog.agent.v1.SetRedisPasswordRequest
+	(*SetRedisPasswordResponse)(nil),         // 75: serverdog.agent.v1.SetRedisPasswordResponse
+	(*ListSystemServicesRequest)(nil),        // 76: serverdog.agent.v1.ListSystemServicesRequest
+	(*SystemService)(nil),                    // 77: serverdog.agent.v1.SystemService
+	(*ListSystemServicesResponse)(nil),       // 78: serverdog.agent.v1.ListSystemServicesResponse
+	(*ControlSystemServiceRequest)(nil),      // 79: serverdog.agent.v1.ControlSystemServiceRequest
+	(*ControlSystemServiceResponse)(nil),     // 80: serverdog.agent.v1.ControlSystemServiceResponse
+	(*RebootServerRequest)(nil),              // 81: serverdog.agent.v1.RebootServerRequest
+	(*RebootServerResponse)(nil),             // 82: serverdog.agent.v1.RebootServerResponse
+	(*GetMetricHistoryRequest)(nil),          // 83: serverdog.agent.v1.GetMetricHistoryRequest
+	(*MetricSample)(nil),                     // 84: serverdog.agent.v1.MetricSample
+	(*GetMetricHistoryResponse)(nil),         // 85: serverdog.agent.v1.GetMetricHistoryResponse
+	(*GetCapabilitiesRequest)(nil),           // 86: serverdog.agent.v1.GetCapabilitiesRequest
+	(*GetCapabilitiesResponse)(nil),          // 87: serverdog.agent.v1.GetCapabilitiesResponse
+	(*NetworkPeer)(nil),                      // 88: serverdog.agent.v1.NetworkPeer
+	(*NetworkAddress)(nil),                   // 89: serverdog.agent.v1.NetworkAddress
+	(*NetworkService)(nil),                   // 90: serverdog.agent.v1.NetworkService
+	(*GetNetworkRequest)(nil),                // 91: serverdog.agent.v1.GetNetworkRequest
+	(*GetNetworkResponse)(nil),               // 92: serverdog.agent.v1.GetNetworkResponse
+	(*PutNetworkRequest)(nil),                // 93: serverdog.agent.v1.PutNetworkRequest
+	(*PutNetworkResponse)(nil),               // 94: serverdog.agent.v1.PutNetworkResponse
+	(*CheckConnectionRequest)(nil),           // 95: serverdog.agent.v1.CheckConnectionRequest
+	(*CheckConnectionResponse)(nil),          // 96: serverdog.agent.v1.CheckConnectionResponse
+	(*UpdateSettings)(nil),                   // 97: serverdog.agent.v1.UpdateSettings
+	(*GetUpdatesRequest)(nil),                // 98: serverdog.agent.v1.GetUpdatesRequest
+	(*GetUpdatesResponse)(nil),               // 99: serverdog.agent.v1.GetUpdatesResponse
+	(*PutUpdateSettingsRequest)(nil),         // 100: serverdog.agent.v1.PutUpdateSettingsRequest
+	(*PutUpdateSettingsResponse)(nil),        // 101: serverdog.agent.v1.PutUpdateSettingsResponse
+	(*GetMeilisearchConfigRequest)(nil),      // 102: serverdog.agent.v1.GetMeilisearchConfigRequest
+	(*GetMeilisearchConfigResponse)(nil),     // 103: serverdog.agent.v1.GetMeilisearchConfigResponse
+	(*PutMeilisearchConfigRequest)(nil),      // 104: serverdog.agent.v1.PutMeilisearchConfigRequest
+	(*PutMeilisearchConfigResponse)(nil),     // 105: serverdog.agent.v1.PutMeilisearchConfigResponse
+	(*ListMeilisearchKeysRequest)(nil),       // 106: serverdog.agent.v1.ListMeilisearchKeysRequest
+	(*MeilisearchKey)(nil),                   // 107: serverdog.agent.v1.MeilisearchKey
+	(*ListMeilisearchKeysResponse)(nil),      // 108: serverdog.agent.v1.ListMeilisearchKeysResponse
+	nil,                                      // 109: serverdog.agent.v1.Insight.ValuesEntry
 }
 var file_serverdog_agent_v1_server_proto_depIdxs = []int32{
-	106, // 0: serverdog.agent.v1.Insight.values:type_name -> serverdog.agent.v1.Insight.ValuesEntry
-	1,   // 1: serverdog.agent.v1.GetInsightsResponse.insights:type_name -> serverdog.agent.v1.Insight
-	6,   // 2: serverdog.agent.v1.GetFirewallResponse.rules:type_name -> serverdog.agent.v1.FirewallRule
-	6,   // 3: serverdog.agent.v1.PutFirewallRequest.rules:type_name -> serverdog.agent.v1.FirewallRule
-	11,  // 4: serverdog.agent.v1.GetSSHKeysResponse.keys:type_name -> serverdog.agent.v1.SSHKey
-	12,  // 5: serverdog.agent.v1.GetSSHKeysResponse.other_keys:type_name -> serverdog.agent.v1.OtherSSHKey
-	11,  // 6: serverdog.agent.v1.PutSSHKeysRequest.keys:type_name -> serverdog.agent.v1.SSHKey
-	17,  // 7: serverdog.agent.v1.GetPHPVersionsResponse.used_by:type_name -> serverdog.agent.v1.PHPVersionUse
-	26,  // 8: serverdog.agent.v1.ListLogsResponse.sources:type_name -> serverdog.agent.v1.LogSource
-	31,  // 9: serverdog.agent.v1.GetNotificationsResponse.notifications:type_name -> serverdog.agent.v1.Notifications
-	31,  // 10: serverdog.agent.v1.PutNotificationsRequest.notifications:type_name -> serverdog.agent.v1.Notifications
-	38,  // 11: serverdog.agent.v1.ListScheduledJobsResponse.jobs:type_name -> serverdog.agent.v1.ScheduledJob
-	38,  // 12: serverdog.agent.v1.PutScheduledJobsRequest.jobs:type_name -> serverdog.agent.v1.ScheduledJob
-	43,  // 13: serverdog.agent.v1.ListBackgroundProcessesResponse.processes:type_name -> serverdog.agent.v1.BackgroundProcess
-	43,  // 14: serverdog.agent.v1.PutBackgroundProcessesRequest.processes:type_name -> serverdog.agent.v1.BackgroundProcess
-	52,  // 15: serverdog.agent.v1.GetPHPSettingsResponse.settings:type_name -> serverdog.agent.v1.PHPSettings
-	52,  // 16: serverdog.agent.v1.PutPHPSettingsRequest.settings:type_name -> serverdog.agent.v1.PHPSettings
-	57,  // 17: serverdog.agent.v1.GetComposerCredentialsResponse.credentials:type_name -> serverdog.agent.v1.ComposerCredential
-	57,  // 18: serverdog.agent.v1.PutComposerCredentialsRequest.credentials:type_name -> serverdog.agent.v1.ComposerCredential
-	62,  // 19: serverdog.agent.v1.GetNPMCredentialsResponse.credentials:type_name -> serverdog.agent.v1.NPMCredential
-	62,  // 20: serverdog.agent.v1.PutNPMCredentialsRequest.credentials:type_name -> serverdog.agent.v1.NPMCredential
-	74,  // 21: serverdog.agent.v1.ListSystemServicesResponse.services:type_name -> serverdog.agent.v1.SystemService
-	0,   // 22: serverdog.agent.v1.ControlSystemServiceRequest.action:type_name -> serverdog.agent.v1.ServiceAction
-	81,  // 23: serverdog.agent.v1.GetMetricHistoryResponse.samples:type_name -> serverdog.agent.v1.MetricSample
-	85,  // 24: serverdog.agent.v1.GetNetworkResponse.peers:type_name -> serverdog.agent.v1.NetworkPeer
-	86,  // 25: serverdog.agent.v1.GetNetworkResponse.candidates:type_name -> serverdog.agent.v1.NetworkAddress
-	87,  // 26: serverdog.agent.v1.GetNetworkResponse.services:type_name -> serverdog.agent.v1.NetworkService
-	85,  // 27: serverdog.agent.v1.PutNetworkRequest.peers:type_name -> serverdog.agent.v1.NetworkPeer
-	94,  // 28: serverdog.agent.v1.GetUpdatesResponse.settings:type_name -> serverdog.agent.v1.UpdateSettings
-	94,  // 29: serverdog.agent.v1.PutUpdateSettingsRequest.settings:type_name -> serverdog.agent.v1.UpdateSettings
-	104, // 30: serverdog.agent.v1.ListMeilisearchKeysResponse.keys:type_name -> serverdog.agent.v1.MeilisearchKey
-	83,  // 31: serverdog.agent.v1.ServerService.GetCapabilities:input_type -> serverdog.agent.v1.GetCapabilitiesRequest
-	39,  // 32: serverdog.agent.v1.ServerService.ListScheduledJobs:input_type -> serverdog.agent.v1.ListScheduledJobsRequest
-	41,  // 33: serverdog.agent.v1.ServerService.PutScheduledJobs:input_type -> serverdog.agent.v1.PutScheduledJobsRequest
-	44,  // 34: serverdog.agent.v1.ServerService.ListBackgroundProcesses:input_type -> serverdog.agent.v1.ListBackgroundProcessesRequest
-	46,  // 35: serverdog.agent.v1.ServerService.PutBackgroundProcesses:input_type -> serverdog.agent.v1.PutBackgroundProcessesRequest
-	48,  // 36: serverdog.agent.v1.ServerService.RestartBackgroundProcess:input_type -> serverdog.agent.v1.RestartBackgroundProcessRequest
-	50,  // 37: serverdog.agent.v1.ServerService.InstallFrankenPHP:input_type -> serverdog.agent.v1.InstallFrankenPHPRequest
-	67,  // 38: serverdog.agent.v1.ServerService.GetServerSettings:input_type -> serverdog.agent.v1.GetServerSettingsRequest
-	69,  // 39: serverdog.agent.v1.ServerService.SetTimezone:input_type -> serverdog.agent.v1.SetTimezoneRequest
-	71,  // 40: serverdog.agent.v1.ServerService.SetRedisPassword:input_type -> serverdog.agent.v1.SetRedisPasswordRequest
-	73,  // 41: serverdog.agent.v1.ServerService.ListSystemServices:input_type -> serverdog.agent.v1.ListSystemServicesRequest
-	76,  // 42: serverdog.agent.v1.ServerService.ControlSystemService:input_type -> serverdog.agent.v1.ControlSystemServiceRequest
-	78,  // 43: serverdog.agent.v1.ServerService.RebootServer:input_type -> serverdog.agent.v1.RebootServerRequest
-	80,  // 44: serverdog.agent.v1.ServerService.GetMetricHistory:input_type -> serverdog.agent.v1.GetMetricHistoryRequest
-	53,  // 45: serverdog.agent.v1.ServerService.GetPHPSettings:input_type -> serverdog.agent.v1.GetPHPSettingsRequest
-	55,  // 46: serverdog.agent.v1.ServerService.PutPHPSettings:input_type -> serverdog.agent.v1.PutPHPSettingsRequest
-	58,  // 47: serverdog.agent.v1.ServerService.GetComposerCredentials:input_type -> serverdog.agent.v1.GetComposerCredentialsRequest
-	60,  // 48: serverdog.agent.v1.ServerService.PutComposerCredentials:input_type -> serverdog.agent.v1.PutComposerCredentialsRequest
-	63,  // 49: serverdog.agent.v1.ServerService.GetNPMCredentials:input_type -> serverdog.agent.v1.GetNPMCredentialsRequest
-	65,  // 50: serverdog.agent.v1.ServerService.PutNPMCredentials:input_type -> serverdog.agent.v1.PutNPMCredentialsRequest
-	32,  // 51: serverdog.agent.v1.ServerService.GetNotifications:input_type -> serverdog.agent.v1.GetNotificationsRequest
-	34,  // 52: serverdog.agent.v1.ServerService.PutNotifications:input_type -> serverdog.agent.v1.PutNotificationsRequest
-	36,  // 53: serverdog.agent.v1.ServerService.TestNotifications:input_type -> serverdog.agent.v1.TestNotificationsRequest
-	27,  // 54: serverdog.agent.v1.ServerService.ListLogs:input_type -> serverdog.agent.v1.ListLogsRequest
-	29,  // 55: serverdog.agent.v1.ServerService.ReadLog:input_type -> serverdog.agent.v1.ReadLogRequest
-	7,   // 56: serverdog.agent.v1.ServerService.GetFirewall:input_type -> serverdog.agent.v1.GetFirewallRequest
-	9,   // 57: serverdog.agent.v1.ServerService.PutFirewall:input_type -> serverdog.agent.v1.PutFirewallRequest
-	13,  // 58: serverdog.agent.v1.ServerService.GetSSHKeys:input_type -> serverdog.agent.v1.GetSSHKeysRequest
-	15,  // 59: serverdog.agent.v1.ServerService.PutSSHKeys:input_type -> serverdog.agent.v1.PutSSHKeysRequest
-	18,  // 60: serverdog.agent.v1.ServerService.GetPHPVersions:input_type -> serverdog.agent.v1.GetPHPVersionsRequest
-	20,  // 61: serverdog.agent.v1.ServerService.InstallPHPVersion:input_type -> serverdog.agent.v1.InstallPHPVersionRequest
-	22,  // 62: serverdog.agent.v1.ServerService.RemovePHPVersion:input_type -> serverdog.agent.v1.RemovePHPVersionRequest
-	24,  // 63: serverdog.agent.v1.ServerService.SetCLIPHPVersion:input_type -> serverdog.agent.v1.SetCLIPHPVersionRequest
-	88,  // 64: serverdog.agent.v1.ServerService.GetNetwork:input_type -> serverdog.agent.v1.GetNetworkRequest
-	90,  // 65: serverdog.agent.v1.ServerService.PutNetwork:input_type -> serverdog.agent.v1.PutNetworkRequest
-	92,  // 66: serverdog.agent.v1.ServerService.CheckConnection:input_type -> serverdog.agent.v1.CheckConnectionRequest
-	95,  // 67: serverdog.agent.v1.ServerService.GetUpdates:input_type -> serverdog.agent.v1.GetUpdatesRequest
-	97,  // 68: serverdog.agent.v1.ServerService.PutUpdateSettings:input_type -> serverdog.agent.v1.PutUpdateSettingsRequest
-	2,   // 69: serverdog.agent.v1.ServerService.GetInsights:input_type -> serverdog.agent.v1.GetInsightsRequest
-	4,   // 70: serverdog.agent.v1.ServerService.FixInsight:input_type -> serverdog.agent.v1.FixInsightRequest
-	99,  // 71: serverdog.agent.v1.ServerService.GetMeilisearchConfig:input_type -> serverdog.agent.v1.GetMeilisearchConfigRequest
-	101, // 72: serverdog.agent.v1.ServerService.PutMeilisearchConfig:input_type -> serverdog.agent.v1.PutMeilisearchConfigRequest
-	103, // 73: serverdog.agent.v1.ServerService.ListMeilisearchKeys:input_type -> serverdog.agent.v1.ListMeilisearchKeysRequest
-	84,  // 74: serverdog.agent.v1.ServerService.GetCapabilities:output_type -> serverdog.agent.v1.GetCapabilitiesResponse
-	40,  // 75: serverdog.agent.v1.ServerService.ListScheduledJobs:output_type -> serverdog.agent.v1.ListScheduledJobsResponse
-	42,  // 76: serverdog.agent.v1.ServerService.PutScheduledJobs:output_type -> serverdog.agent.v1.PutScheduledJobsResponse
-	45,  // 77: serverdog.agent.v1.ServerService.ListBackgroundProcesses:output_type -> serverdog.agent.v1.ListBackgroundProcessesResponse
-	47,  // 78: serverdog.agent.v1.ServerService.PutBackgroundProcesses:output_type -> serverdog.agent.v1.PutBackgroundProcessesResponse
-	49,  // 79: serverdog.agent.v1.ServerService.RestartBackgroundProcess:output_type -> serverdog.agent.v1.RestartBackgroundProcessResponse
-	51,  // 80: serverdog.agent.v1.ServerService.InstallFrankenPHP:output_type -> serverdog.agent.v1.InstallFrankenPHPResponse
-	68,  // 81: serverdog.agent.v1.ServerService.GetServerSettings:output_type -> serverdog.agent.v1.GetServerSettingsResponse
-	70,  // 82: serverdog.agent.v1.ServerService.SetTimezone:output_type -> serverdog.agent.v1.SetTimezoneResponse
-	72,  // 83: serverdog.agent.v1.ServerService.SetRedisPassword:output_type -> serverdog.agent.v1.SetRedisPasswordResponse
-	75,  // 84: serverdog.agent.v1.ServerService.ListSystemServices:output_type -> serverdog.agent.v1.ListSystemServicesResponse
-	77,  // 85: serverdog.agent.v1.ServerService.ControlSystemService:output_type -> serverdog.agent.v1.ControlSystemServiceResponse
-	79,  // 86: serverdog.agent.v1.ServerService.RebootServer:output_type -> serverdog.agent.v1.RebootServerResponse
-	82,  // 87: serverdog.agent.v1.ServerService.GetMetricHistory:output_type -> serverdog.agent.v1.GetMetricHistoryResponse
-	54,  // 88: serverdog.agent.v1.ServerService.GetPHPSettings:output_type -> serverdog.agent.v1.GetPHPSettingsResponse
-	56,  // 89: serverdog.agent.v1.ServerService.PutPHPSettings:output_type -> serverdog.agent.v1.PutPHPSettingsResponse
-	59,  // 90: serverdog.agent.v1.ServerService.GetComposerCredentials:output_type -> serverdog.agent.v1.GetComposerCredentialsResponse
-	61,  // 91: serverdog.agent.v1.ServerService.PutComposerCredentials:output_type -> serverdog.agent.v1.PutComposerCredentialsResponse
-	64,  // 92: serverdog.agent.v1.ServerService.GetNPMCredentials:output_type -> serverdog.agent.v1.GetNPMCredentialsResponse
-	66,  // 93: serverdog.agent.v1.ServerService.PutNPMCredentials:output_type -> serverdog.agent.v1.PutNPMCredentialsResponse
-	33,  // 94: serverdog.agent.v1.ServerService.GetNotifications:output_type -> serverdog.agent.v1.GetNotificationsResponse
-	35,  // 95: serverdog.agent.v1.ServerService.PutNotifications:output_type -> serverdog.agent.v1.PutNotificationsResponse
-	37,  // 96: serverdog.agent.v1.ServerService.TestNotifications:output_type -> serverdog.agent.v1.TestNotificationsResponse
-	28,  // 97: serverdog.agent.v1.ServerService.ListLogs:output_type -> serverdog.agent.v1.ListLogsResponse
-	30,  // 98: serverdog.agent.v1.ServerService.ReadLog:output_type -> serverdog.agent.v1.ReadLogResponse
-	8,   // 99: serverdog.agent.v1.ServerService.GetFirewall:output_type -> serverdog.agent.v1.GetFirewallResponse
-	10,  // 100: serverdog.agent.v1.ServerService.PutFirewall:output_type -> serverdog.agent.v1.PutFirewallResponse
-	14,  // 101: serverdog.agent.v1.ServerService.GetSSHKeys:output_type -> serverdog.agent.v1.GetSSHKeysResponse
-	16,  // 102: serverdog.agent.v1.ServerService.PutSSHKeys:output_type -> serverdog.agent.v1.PutSSHKeysResponse
-	19,  // 103: serverdog.agent.v1.ServerService.GetPHPVersions:output_type -> serverdog.agent.v1.GetPHPVersionsResponse
-	21,  // 104: serverdog.agent.v1.ServerService.InstallPHPVersion:output_type -> serverdog.agent.v1.InstallPHPVersionResponse
-	23,  // 105: serverdog.agent.v1.ServerService.RemovePHPVersion:output_type -> serverdog.agent.v1.RemovePHPVersionResponse
-	25,  // 106: serverdog.agent.v1.ServerService.SetCLIPHPVersion:output_type -> serverdog.agent.v1.SetCLIPHPVersionResponse
-	89,  // 107: serverdog.agent.v1.ServerService.GetNetwork:output_type -> serverdog.agent.v1.GetNetworkResponse
-	91,  // 108: serverdog.agent.v1.ServerService.PutNetwork:output_type -> serverdog.agent.v1.PutNetworkResponse
-	93,  // 109: serverdog.agent.v1.ServerService.CheckConnection:output_type -> serverdog.agent.v1.CheckConnectionResponse
-	96,  // 110: serverdog.agent.v1.ServerService.GetUpdates:output_type -> serverdog.agent.v1.GetUpdatesResponse
-	98,  // 111: serverdog.agent.v1.ServerService.PutUpdateSettings:output_type -> serverdog.agent.v1.PutUpdateSettingsResponse
-	3,   // 112: serverdog.agent.v1.ServerService.GetInsights:output_type -> serverdog.agent.v1.GetInsightsResponse
-	5,   // 113: serverdog.agent.v1.ServerService.FixInsight:output_type -> serverdog.agent.v1.FixInsightResponse
-	100, // 114: serverdog.agent.v1.ServerService.GetMeilisearchConfig:output_type -> serverdog.agent.v1.GetMeilisearchConfigResponse
-	102, // 115: serverdog.agent.v1.ServerService.PutMeilisearchConfig:output_type -> serverdog.agent.v1.PutMeilisearchConfigResponse
-	105, // 116: serverdog.agent.v1.ServerService.ListMeilisearchKeys:output_type -> serverdog.agent.v1.ListMeilisearchKeysResponse
-	74,  // [74:117] is the sub-list for method output_type
-	31,  // [31:74] is the sub-list for method input_type
-	31,  // [31:31] is the sub-list for extension type_name
-	31,  // [31:31] is the sub-list for extension extendee
-	0,   // [0:31] is the sub-list for field type_name
+	109, // 0: serverdog.agent.v1.Insight.values:type_name -> serverdog.agent.v1.Insight.ValuesEntry
+	2,   // 1: serverdog.agent.v1.GetInsightsResponse.insights:type_name -> serverdog.agent.v1.Insight
+	7,   // 2: serverdog.agent.v1.GetFirewallResponse.rules:type_name -> serverdog.agent.v1.FirewallRule
+	7,   // 3: serverdog.agent.v1.PutFirewallRequest.rules:type_name -> serverdog.agent.v1.FirewallRule
+	12,  // 4: serverdog.agent.v1.GetSSHKeysResponse.keys:type_name -> serverdog.agent.v1.SSHKey
+	13,  // 5: serverdog.agent.v1.GetSSHKeysResponse.other_keys:type_name -> serverdog.agent.v1.OtherSSHKey
+	12,  // 6: serverdog.agent.v1.PutSSHKeysRequest.keys:type_name -> serverdog.agent.v1.SSHKey
+	18,  // 7: serverdog.agent.v1.GetPHPVersionsResponse.used_by:type_name -> serverdog.agent.v1.PHPVersionUse
+	27,  // 8: serverdog.agent.v1.ListLogsResponse.sources:type_name -> serverdog.agent.v1.LogSource
+	32,  // 9: serverdog.agent.v1.GetNotificationsResponse.notifications:type_name -> serverdog.agent.v1.Notifications
+	32,  // 10: serverdog.agent.v1.PutNotificationsRequest.notifications:type_name -> serverdog.agent.v1.Notifications
+	39,  // 11: serverdog.agent.v1.ListScheduledJobsResponse.jobs:type_name -> serverdog.agent.v1.ScheduledJob
+	39,  // 12: serverdog.agent.v1.PutScheduledJobsRequest.jobs:type_name -> serverdog.agent.v1.ScheduledJob
+	44,  // 13: serverdog.agent.v1.ListBackgroundProcessesResponse.processes:type_name -> serverdog.agent.v1.BackgroundProcess
+	44,  // 14: serverdog.agent.v1.PutBackgroundProcessesRequest.processes:type_name -> serverdog.agent.v1.BackgroundProcess
+	0,   // 15: serverdog.agent.v1.InstallToolRequest.tool:type_name -> serverdog.agent.v1.Tool
+	55,  // 16: serverdog.agent.v1.GetPHPSettingsResponse.settings:type_name -> serverdog.agent.v1.PHPSettings
+	55,  // 17: serverdog.agent.v1.PutPHPSettingsRequest.settings:type_name -> serverdog.agent.v1.PHPSettings
+	60,  // 18: serverdog.agent.v1.GetComposerCredentialsResponse.credentials:type_name -> serverdog.agent.v1.ComposerCredential
+	60,  // 19: serverdog.agent.v1.PutComposerCredentialsRequest.credentials:type_name -> serverdog.agent.v1.ComposerCredential
+	65,  // 20: serverdog.agent.v1.GetNPMCredentialsResponse.credentials:type_name -> serverdog.agent.v1.NPMCredential
+	65,  // 21: serverdog.agent.v1.PutNPMCredentialsRequest.credentials:type_name -> serverdog.agent.v1.NPMCredential
+	77,  // 22: serverdog.agent.v1.ListSystemServicesResponse.services:type_name -> serverdog.agent.v1.SystemService
+	1,   // 23: serverdog.agent.v1.ControlSystemServiceRequest.action:type_name -> serverdog.agent.v1.ServiceAction
+	84,  // 24: serverdog.agent.v1.GetMetricHistoryResponse.samples:type_name -> serverdog.agent.v1.MetricSample
+	88,  // 25: serverdog.agent.v1.GetNetworkResponse.peers:type_name -> serverdog.agent.v1.NetworkPeer
+	89,  // 26: serverdog.agent.v1.GetNetworkResponse.candidates:type_name -> serverdog.agent.v1.NetworkAddress
+	90,  // 27: serverdog.agent.v1.GetNetworkResponse.services:type_name -> serverdog.agent.v1.NetworkService
+	88,  // 28: serverdog.agent.v1.PutNetworkRequest.peers:type_name -> serverdog.agent.v1.NetworkPeer
+	97,  // 29: serverdog.agent.v1.GetUpdatesResponse.settings:type_name -> serverdog.agent.v1.UpdateSettings
+	97,  // 30: serverdog.agent.v1.PutUpdateSettingsRequest.settings:type_name -> serverdog.agent.v1.UpdateSettings
+	107, // 31: serverdog.agent.v1.ListMeilisearchKeysResponse.keys:type_name -> serverdog.agent.v1.MeilisearchKey
+	86,  // 32: serverdog.agent.v1.ServerService.GetCapabilities:input_type -> serverdog.agent.v1.GetCapabilitiesRequest
+	40,  // 33: serverdog.agent.v1.ServerService.ListScheduledJobs:input_type -> serverdog.agent.v1.ListScheduledJobsRequest
+	42,  // 34: serverdog.agent.v1.ServerService.PutScheduledJobs:input_type -> serverdog.agent.v1.PutScheduledJobsRequest
+	45,  // 35: serverdog.agent.v1.ServerService.ListBackgroundProcesses:input_type -> serverdog.agent.v1.ListBackgroundProcessesRequest
+	47,  // 36: serverdog.agent.v1.ServerService.PutBackgroundProcesses:input_type -> serverdog.agent.v1.PutBackgroundProcessesRequest
+	49,  // 37: serverdog.agent.v1.ServerService.RestartBackgroundProcess:input_type -> serverdog.agent.v1.RestartBackgroundProcessRequest
+	51,  // 38: serverdog.agent.v1.ServerService.InstallFrankenPHP:input_type -> serverdog.agent.v1.InstallFrankenPHPRequest
+	53,  // 39: serverdog.agent.v1.ServerService.InstallTool:input_type -> serverdog.agent.v1.InstallToolRequest
+	70,  // 40: serverdog.agent.v1.ServerService.GetServerSettings:input_type -> serverdog.agent.v1.GetServerSettingsRequest
+	72,  // 41: serverdog.agent.v1.ServerService.SetTimezone:input_type -> serverdog.agent.v1.SetTimezoneRequest
+	74,  // 42: serverdog.agent.v1.ServerService.SetRedisPassword:input_type -> serverdog.agent.v1.SetRedisPasswordRequest
+	76,  // 43: serverdog.agent.v1.ServerService.ListSystemServices:input_type -> serverdog.agent.v1.ListSystemServicesRequest
+	79,  // 44: serverdog.agent.v1.ServerService.ControlSystemService:input_type -> serverdog.agent.v1.ControlSystemServiceRequest
+	81,  // 45: serverdog.agent.v1.ServerService.RebootServer:input_type -> serverdog.agent.v1.RebootServerRequest
+	83,  // 46: serverdog.agent.v1.ServerService.GetMetricHistory:input_type -> serverdog.agent.v1.GetMetricHistoryRequest
+	56,  // 47: serverdog.agent.v1.ServerService.GetPHPSettings:input_type -> serverdog.agent.v1.GetPHPSettingsRequest
+	58,  // 48: serverdog.agent.v1.ServerService.PutPHPSettings:input_type -> serverdog.agent.v1.PutPHPSettingsRequest
+	61,  // 49: serverdog.agent.v1.ServerService.GetComposerCredentials:input_type -> serverdog.agent.v1.GetComposerCredentialsRequest
+	63,  // 50: serverdog.agent.v1.ServerService.PutComposerCredentials:input_type -> serverdog.agent.v1.PutComposerCredentialsRequest
+	66,  // 51: serverdog.agent.v1.ServerService.GetNPMCredentials:input_type -> serverdog.agent.v1.GetNPMCredentialsRequest
+	68,  // 52: serverdog.agent.v1.ServerService.PutNPMCredentials:input_type -> serverdog.agent.v1.PutNPMCredentialsRequest
+	33,  // 53: serverdog.agent.v1.ServerService.GetNotifications:input_type -> serverdog.agent.v1.GetNotificationsRequest
+	35,  // 54: serverdog.agent.v1.ServerService.PutNotifications:input_type -> serverdog.agent.v1.PutNotificationsRequest
+	37,  // 55: serverdog.agent.v1.ServerService.TestNotifications:input_type -> serverdog.agent.v1.TestNotificationsRequest
+	28,  // 56: serverdog.agent.v1.ServerService.ListLogs:input_type -> serverdog.agent.v1.ListLogsRequest
+	30,  // 57: serverdog.agent.v1.ServerService.ReadLog:input_type -> serverdog.agent.v1.ReadLogRequest
+	8,   // 58: serverdog.agent.v1.ServerService.GetFirewall:input_type -> serverdog.agent.v1.GetFirewallRequest
+	10,  // 59: serverdog.agent.v1.ServerService.PutFirewall:input_type -> serverdog.agent.v1.PutFirewallRequest
+	14,  // 60: serverdog.agent.v1.ServerService.GetSSHKeys:input_type -> serverdog.agent.v1.GetSSHKeysRequest
+	16,  // 61: serverdog.agent.v1.ServerService.PutSSHKeys:input_type -> serverdog.agent.v1.PutSSHKeysRequest
+	19,  // 62: serverdog.agent.v1.ServerService.GetPHPVersions:input_type -> serverdog.agent.v1.GetPHPVersionsRequest
+	21,  // 63: serverdog.agent.v1.ServerService.InstallPHPVersion:input_type -> serverdog.agent.v1.InstallPHPVersionRequest
+	23,  // 64: serverdog.agent.v1.ServerService.RemovePHPVersion:input_type -> serverdog.agent.v1.RemovePHPVersionRequest
+	25,  // 65: serverdog.agent.v1.ServerService.SetCLIPHPVersion:input_type -> serverdog.agent.v1.SetCLIPHPVersionRequest
+	91,  // 66: serverdog.agent.v1.ServerService.GetNetwork:input_type -> serverdog.agent.v1.GetNetworkRequest
+	93,  // 67: serverdog.agent.v1.ServerService.PutNetwork:input_type -> serverdog.agent.v1.PutNetworkRequest
+	95,  // 68: serverdog.agent.v1.ServerService.CheckConnection:input_type -> serverdog.agent.v1.CheckConnectionRequest
+	98,  // 69: serverdog.agent.v1.ServerService.GetUpdates:input_type -> serverdog.agent.v1.GetUpdatesRequest
+	100, // 70: serverdog.agent.v1.ServerService.PutUpdateSettings:input_type -> serverdog.agent.v1.PutUpdateSettingsRequest
+	3,   // 71: serverdog.agent.v1.ServerService.GetInsights:input_type -> serverdog.agent.v1.GetInsightsRequest
+	5,   // 72: serverdog.agent.v1.ServerService.FixInsight:input_type -> serverdog.agent.v1.FixInsightRequest
+	102, // 73: serverdog.agent.v1.ServerService.GetMeilisearchConfig:input_type -> serverdog.agent.v1.GetMeilisearchConfigRequest
+	104, // 74: serverdog.agent.v1.ServerService.PutMeilisearchConfig:input_type -> serverdog.agent.v1.PutMeilisearchConfigRequest
+	106, // 75: serverdog.agent.v1.ServerService.ListMeilisearchKeys:input_type -> serverdog.agent.v1.ListMeilisearchKeysRequest
+	87,  // 76: serverdog.agent.v1.ServerService.GetCapabilities:output_type -> serverdog.agent.v1.GetCapabilitiesResponse
+	41,  // 77: serverdog.agent.v1.ServerService.ListScheduledJobs:output_type -> serverdog.agent.v1.ListScheduledJobsResponse
+	43,  // 78: serverdog.agent.v1.ServerService.PutScheduledJobs:output_type -> serverdog.agent.v1.PutScheduledJobsResponse
+	46,  // 79: serverdog.agent.v1.ServerService.ListBackgroundProcesses:output_type -> serverdog.agent.v1.ListBackgroundProcessesResponse
+	48,  // 80: serverdog.agent.v1.ServerService.PutBackgroundProcesses:output_type -> serverdog.agent.v1.PutBackgroundProcessesResponse
+	50,  // 81: serverdog.agent.v1.ServerService.RestartBackgroundProcess:output_type -> serverdog.agent.v1.RestartBackgroundProcessResponse
+	52,  // 82: serverdog.agent.v1.ServerService.InstallFrankenPHP:output_type -> serverdog.agent.v1.InstallFrankenPHPResponse
+	54,  // 83: serverdog.agent.v1.ServerService.InstallTool:output_type -> serverdog.agent.v1.InstallToolResponse
+	71,  // 84: serverdog.agent.v1.ServerService.GetServerSettings:output_type -> serverdog.agent.v1.GetServerSettingsResponse
+	73,  // 85: serverdog.agent.v1.ServerService.SetTimezone:output_type -> serverdog.agent.v1.SetTimezoneResponse
+	75,  // 86: serverdog.agent.v1.ServerService.SetRedisPassword:output_type -> serverdog.agent.v1.SetRedisPasswordResponse
+	78,  // 87: serverdog.agent.v1.ServerService.ListSystemServices:output_type -> serverdog.agent.v1.ListSystemServicesResponse
+	80,  // 88: serverdog.agent.v1.ServerService.ControlSystemService:output_type -> serverdog.agent.v1.ControlSystemServiceResponse
+	82,  // 89: serverdog.agent.v1.ServerService.RebootServer:output_type -> serverdog.agent.v1.RebootServerResponse
+	85,  // 90: serverdog.agent.v1.ServerService.GetMetricHistory:output_type -> serverdog.agent.v1.GetMetricHistoryResponse
+	57,  // 91: serverdog.agent.v1.ServerService.GetPHPSettings:output_type -> serverdog.agent.v1.GetPHPSettingsResponse
+	59,  // 92: serverdog.agent.v1.ServerService.PutPHPSettings:output_type -> serverdog.agent.v1.PutPHPSettingsResponse
+	62,  // 93: serverdog.agent.v1.ServerService.GetComposerCredentials:output_type -> serverdog.agent.v1.GetComposerCredentialsResponse
+	64,  // 94: serverdog.agent.v1.ServerService.PutComposerCredentials:output_type -> serverdog.agent.v1.PutComposerCredentialsResponse
+	67,  // 95: serverdog.agent.v1.ServerService.GetNPMCredentials:output_type -> serverdog.agent.v1.GetNPMCredentialsResponse
+	69,  // 96: serverdog.agent.v1.ServerService.PutNPMCredentials:output_type -> serverdog.agent.v1.PutNPMCredentialsResponse
+	34,  // 97: serverdog.agent.v1.ServerService.GetNotifications:output_type -> serverdog.agent.v1.GetNotificationsResponse
+	36,  // 98: serverdog.agent.v1.ServerService.PutNotifications:output_type -> serverdog.agent.v1.PutNotificationsResponse
+	38,  // 99: serverdog.agent.v1.ServerService.TestNotifications:output_type -> serverdog.agent.v1.TestNotificationsResponse
+	29,  // 100: serverdog.agent.v1.ServerService.ListLogs:output_type -> serverdog.agent.v1.ListLogsResponse
+	31,  // 101: serverdog.agent.v1.ServerService.ReadLog:output_type -> serverdog.agent.v1.ReadLogResponse
+	9,   // 102: serverdog.agent.v1.ServerService.GetFirewall:output_type -> serverdog.agent.v1.GetFirewallResponse
+	11,  // 103: serverdog.agent.v1.ServerService.PutFirewall:output_type -> serverdog.agent.v1.PutFirewallResponse
+	15,  // 104: serverdog.agent.v1.ServerService.GetSSHKeys:output_type -> serverdog.agent.v1.GetSSHKeysResponse
+	17,  // 105: serverdog.agent.v1.ServerService.PutSSHKeys:output_type -> serverdog.agent.v1.PutSSHKeysResponse
+	20,  // 106: serverdog.agent.v1.ServerService.GetPHPVersions:output_type -> serverdog.agent.v1.GetPHPVersionsResponse
+	22,  // 107: serverdog.agent.v1.ServerService.InstallPHPVersion:output_type -> serverdog.agent.v1.InstallPHPVersionResponse
+	24,  // 108: serverdog.agent.v1.ServerService.RemovePHPVersion:output_type -> serverdog.agent.v1.RemovePHPVersionResponse
+	26,  // 109: serverdog.agent.v1.ServerService.SetCLIPHPVersion:output_type -> serverdog.agent.v1.SetCLIPHPVersionResponse
+	92,  // 110: serverdog.agent.v1.ServerService.GetNetwork:output_type -> serverdog.agent.v1.GetNetworkResponse
+	94,  // 111: serverdog.agent.v1.ServerService.PutNetwork:output_type -> serverdog.agent.v1.PutNetworkResponse
+	96,  // 112: serverdog.agent.v1.ServerService.CheckConnection:output_type -> serverdog.agent.v1.CheckConnectionResponse
+	99,  // 113: serverdog.agent.v1.ServerService.GetUpdates:output_type -> serverdog.agent.v1.GetUpdatesResponse
+	101, // 114: serverdog.agent.v1.ServerService.PutUpdateSettings:output_type -> serverdog.agent.v1.PutUpdateSettingsResponse
+	4,   // 115: serverdog.agent.v1.ServerService.GetInsights:output_type -> serverdog.agent.v1.GetInsightsResponse
+	6,   // 116: serverdog.agent.v1.ServerService.FixInsight:output_type -> serverdog.agent.v1.FixInsightResponse
+	103, // 117: serverdog.agent.v1.ServerService.GetMeilisearchConfig:output_type -> serverdog.agent.v1.GetMeilisearchConfigResponse
+	105, // 118: serverdog.agent.v1.ServerService.PutMeilisearchConfig:output_type -> serverdog.agent.v1.PutMeilisearchConfigResponse
+	108, // 119: serverdog.agent.v1.ServerService.ListMeilisearchKeys:output_type -> serverdog.agent.v1.ListMeilisearchKeysResponse
+	76,  // [76:120] is the sub-list for method output_type
+	32,  // [32:76] is the sub-list for method input_type
+	32,  // [32:32] is the sub-list for extension type_name
+	32,  // [32:32] is the sub-list for extension extendee
+	0,   // [0:32] is the sub-list for field type_name
 }
 
 func init() { file_serverdog_agent_v1_server_proto_init() }
@@ -6144,8 +6319,8 @@ func file_serverdog_agent_v1_server_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_serverdog_agent_v1_server_proto_rawDesc), len(file_serverdog_agent_v1_server_proto_rawDesc)),
-			NumEnums:      1,
-			NumMessages:   106,
+			NumEnums:      2,
+			NumMessages:   108,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

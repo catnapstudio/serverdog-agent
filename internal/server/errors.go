@@ -18,6 +18,7 @@ import (
 	"github.com/catnapstudio/serverdog-agent/internal/site"
 	"github.com/catnapstudio/serverdog-agent/internal/sites"
 	"github.com/catnapstudio/serverdog-agent/internal/state"
+	"github.com/catnapstudio/serverdog-agent/internal/tools"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -79,7 +80,7 @@ func toStatus(err error) error {
 		return status.Error(codes.FailedPrecondition, err.Error())
 	case errors.As(err, new(*insights.Error)):
 		return status.Error(codes.Internal, text(err.Error()))
-	case errors.As(err, new(*frankenphp.DownloadError)):
+	case errors.As(err, new(*frankenphp.DownloadError)), errors.As(err, new(*tools.DownloadError)):
 		return status.Error(codes.FailedPrecondition, err.Error())
 	case errors.Is(err, sites.ErrNoHostKey), errors.Is(err, sites.ErrHostKeyMoved), errors.Is(err, sites.ErrProcessStopped), errors.Is(err, daemons.ErrStopped):
 		return status.Error(codes.FailedPrecondition, err.Error())

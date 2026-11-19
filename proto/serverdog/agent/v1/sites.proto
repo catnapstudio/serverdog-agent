@@ -32,6 +32,8 @@ enum Runtime {
   RUNTIME_STATIC = 3;
   // Forwards requests to backends on other servers. Added in protocol 17.
   RUNTIME_BALANCER = 4;
+  // Runs the start command on the site's ports like a Node site, with uv for its dependencies. Added in protocol 24.
+  RUNTIME_PYTHON = 5;
 }
 
 enum Balancing {
@@ -100,7 +102,7 @@ message Site {
   bool environment_in_script = 13;
   uint32 releases_to_keep = 14;
   uint32 deploy_timeout_minutes = 15;
-  // Node sites only.
+  // Node and Python sites only: what each release's server runs, with PORT and HOST set.
   string node_start_command = 16;
   bool isolated = 17;
   // "serverdog", or the isolated user's name.

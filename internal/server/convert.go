@@ -13,6 +13,7 @@ import (
 var runtimes = map[site.Runtime]agentv1.Runtime{
 	site.PHP:      agentv1.Runtime_RUNTIME_PHP,
 	site.Node:     agentv1.Runtime_RUNTIME_NODE,
+	site.Python:   agentv1.Runtime_RUNTIME_PYTHON,
 	site.Static:   agentv1.Runtime_RUNTIME_STATIC,
 	site.Balancer: agentv1.Runtime_RUNTIME_BALANCER,
 }

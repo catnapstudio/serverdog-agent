@@ -750,9 +750,9 @@ func (m *Manager) configPlan(s site.Site, previous *site.Site, caps capabilities
 	}
 
 	if s.RunsOwnServer() {
-		// Laravel reads its own .env; a Node site's is exported by the script.
+		// Laravel reads its own .env; a Node or Python site's is exported by the script.
 		script := nodeservice.RenderOctaneStartScript(phpfpm.Binary(s.PHPVersion), s.AppDirectory, s.ForceHTTPS)
-		if s.Runtime == site.Node {
+		if s.RunsStartCommand() {
 			environment := ""
 			if s.EnvironmentFile != "" {
 				environment = path.Join(s.Directory, "shared", s.EnvironmentFile)

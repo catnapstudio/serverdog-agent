@@ -26,6 +26,7 @@ const (
 	ServerService_PutBackgroundProcesses_FullMethodName   = "/serverdog.agent.v1.ServerService/PutBackgroundProcesses"
 	ServerService_RestartBackgroundProcess_FullMethodName = "/serverdog.agent.v1.ServerService/RestartBackgroundProcess"
 	ServerService_InstallFrankenPHP_FullMethodName        = "/serverdog.agent.v1.ServerService/InstallFrankenPHP"
+	ServerService_InstallTool_FullMethodName              = "/serverdog.agent.v1.ServerService/InstallTool"
 	ServerService_GetServerSettings_FullMethodName        = "/serverdog.agent.v1.ServerService/GetServerSettings"
 	ServerService_SetTimezone_FullMethodName              = "/serverdog.agent.v1.ServerService/SetTimezone"
 	ServerService_SetRedisPassword_FullMethodName         = "/serverdog.agent.v1.ServerService/SetRedisPassword"
@@ -87,6 +88,10 @@ type ServerServiceClient interface {
 	// already: ~175 MB from GitHub, checked against its published SHA-256. Fails with FAILED_PRECONDITION when the
 	// download fails or doesn't match. Added in protocol 19.
 	InstallFrankenPHP(ctx context.Context, in *InstallFrankenPHPRequest, opts ...grpc.CallOption) (*InstallFrankenPHPResponse, error)
+	// Installs the version of uv or Bun the agent pins in /usr/local/bin, unless ServerDog installed it already, checked
+	// against the SHA-256 the agent was built with. Fails with FAILED_PRECONDITION when the download fails or doesn't
+	// match. Added in protocol 24.
+	InstallTool(ctx context.Context, in *InstallToolRequest, opts ...grpc.CallOption) (*InstallToolResponse, error)
 	// The timezone and whether Redis asks for a password. Added in protocol 14.
 	GetServerSettings(ctx context.Context, in *GetServerSettingsRequest, opts ...grpc.CallOption) (*GetServerSettingsResponse, error)
 	// Changes the system timezone; cron restarts so scheduled jobs follow it.
@@ -239,6 +244,16 @@ func (c *serverServiceClient) InstallFrankenPHP(ctx context.Context, in *Install
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(InstallFrankenPHPResponse)
 	err := c.cc.Invoke(ctx, ServerService_InstallFrankenPHP_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serverServiceClient) InstallTool(ctx context.Context, in *InstallToolRequest, opts ...grpc.CallOption) (*InstallToolResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(InstallToolResponse)
+	err := c.cc.Invoke(ctx, ServerService_InstallTool_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -628,6 +643,10 @@ type ServerServiceServer interface {
 	// already: ~175 MB from GitHub, checked against its published SHA-256. Fails with FAILED_PRECONDITION when the
 	// download fails or doesn't match. Added in protocol 19.
 	InstallFrankenPHP(context.Context, *InstallFrankenPHPRequest) (*InstallFrankenPHPResponse, error)
+	// Installs the version of uv or Bun the agent pins in /usr/local/bin, unless ServerDog installed it already, checked
+	// against the SHA-256 the agent was built with. Fails with FAILED_PRECONDITION when the download fails or doesn't
+	// match. Added in protocol 24.
+	InstallTool(context.Context, *InstallToolRequest) (*InstallToolResponse, error)
 	// The timezone and whether Redis asks for a password. Added in protocol 14.
 	GetServerSettings(context.Context, *GetServerSettingsRequest) (*GetServerSettingsResponse, error)
 	// Changes the system timezone; cron restarts so scheduled jobs follow it.
@@ -736,6 +755,9 @@ func (UnimplementedServerServiceServer) RestartBackgroundProcess(context.Context
 }
 func (UnimplementedServerServiceServer) InstallFrankenPHP(context.Context, *InstallFrankenPHPRequest) (*InstallFrankenPHPResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method InstallFrankenPHP not implemented")
+}
+func (UnimplementedServerServiceServer) InstallTool(context.Context, *InstallToolRequest) (*InstallToolResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method InstallTool not implemented")
 }
 func (UnimplementedServerServiceServer) GetServerSettings(context.Context, *GetServerSettingsRequest) (*GetServerSettingsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetServerSettings not implemented")
@@ -988,6 +1010,24 @@ func _ServerService_InstallFrankenPHP_Handler(srv interface{}, ctx context.Conte
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ServerServiceServer).InstallFrankenPHP(ctx, req.(*InstallFrankenPHPRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServerService_InstallTool_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InstallToolRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServerServiceServer).InstallTool(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServerService_InstallTool_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServerServiceServer).InstallTool(ctx, req.(*InstallToolRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1674,6 +1714,10 @@ var ServerService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "InstallFrankenPHP",
 			Handler:    _ServerService_InstallFrankenPHP_Handler,
+		},
+		{
+			MethodName: "InstallTool",
+			Handler:    _ServerService_InstallTool_Handler,
 		},
 		{
 			MethodName: "GetServerSettings",

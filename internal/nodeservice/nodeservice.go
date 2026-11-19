@@ -104,7 +104,7 @@ fi
 // RenderPortEnv is the environment of the instance on port: where it listens and which release it runs.
 // HOST suits Nuxt and Astro; Next.js ignores it, so its start command passes -H 127.0.0.1.
 func RenderPortEnv(port int, release string) []byte {
-	return []byte(fmt.Sprintf("PORT=%d\nHOST=127.0.0.1\nHOSTNAME=127.0.0.1\nNODE_ENV=production\nSERVERDOG_RELEASE_DIRECTORY=%s\n", port, release))
+	return []byte(fmt.Sprintf("PORT=%d\nHOST=127.0.0.1\nHOSTNAME=127.0.0.1\nNODE_ENV=production\nPYTHONUNBUFFERED=1\nSERVERDOG_RELEASE_DIRECTORY=%s\n", port, release))
 }
 
 // RenderUpstream points the site's Nginx upstream at port.

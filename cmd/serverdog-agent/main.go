@@ -1,6 +1,7 @@
 // Command serverdog-agent serves serverdog.agent.v1 on a root-only Unix socket.
 // "serverdog-agent run-deploy <id>" performs one deployment inside its systemd unit.
 // "serverdog-agent env-exports <file>" prints shell exports for an environment file, for Node sites' start scripts.
+// "serverdog-agent install-tool <uv|bun>" installs the pinned uv or Bun, for provisioning.
 // "serverdog-agent reload-nginx" reloads Nginx and returns once the new configuration serves requests.
 // "serverdog-agent port-guard" attaches the Node port guard and fills it from the store; the serverdog-port-guard unit
 // runs it at boot. "serverdog-agent port-guard --remove" detaches it, for uninstalling.
@@ -68,6 +69,7 @@ import (
 	"github.com/catnapstudio/serverdog-agent/internal/state"
 	"github.com/catnapstudio/serverdog-agent/internal/sysinfo"
 	"github.com/catnapstudio/serverdog-agent/internal/system"
+	"github.com/catnapstudio/serverdog-agent/internal/tools"
 	"github.com/catnapstudio/serverdog-agent/internal/updates"
 	"github.com/catnapstudio/serverdog-agent/internal/userfs"
 	"github.com/catnapstudio/serverdog-agent/internal/version"
@@ -79,6 +81,14 @@ import (
 func main() {
 	if len(os.Args) > 1 && os.Args[1] == "env-exports" {
 		os.Exit(envExports(os.Args[2:], os.Stdout, os.Stderr, os.LookupEnv))
+	}
+
+	if len(os.Args) > 1 && os.Args[1] == "install-tool" {
+		if err := installTool(os.Args[2:]); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		return
 	}
 
 	if len(os.Args) > 1 && os.Args[1] == "reload-nginx" {
@@ -304,6 +314,7 @@ func run(socket, stateDir, root string, logger *slog.Logger) error {
 			Paths: p, Client: &http.Client{Timeout: 15 * time.Minute}, Arch: runtime.GOARCH,
 			ReleaseURL: "https://api.github.com/repos/php/frankenphp/releases/tags/v" + frankenphp.Version,
 		},
+		Tools: toolInstaller(p),
 	}
 
 	listener, err := listen.Unix(socket)
@@ -325,6 +336,9 @@ func run(socket, stateDir, root string, logger *slog.Logger) error {
 	running.Go(func() {
 		if err := services.FrankenPHP.Refresh(background); err != nil {
 			slog.Warn("could not update FrankenPHP", "error", err)
+		}
+		if err := services.Tools.Refresh(background); err != nil {
+			slog.Warn("could not update uv or Bun", "error", err)
 		}
 	})
 	if configErr == nil {
@@ -606,6 +620,30 @@ func attachPortGuard(ctx context.Context, guard bootGuard, store portguard.PortU
 	if err := syncer.Sync(ctx); err != nil {
 		return errors.Join(err, guard.Remove())
 	}
+
+	return nil
+}
+
+func toolInstaller(p paths.Paths) *tools.Installer {
+	return &tools.Installer{Paths: p, Client: &http.Client{Timeout: 15 * time.Minute}, Arch: runtime.GOARCH}
+}
+
+// installTool installs uv or Bun the way InstallTool does, for provisioning, which runs before the agent serves.
+func installTool(args []string) error {
+	if len(args) != 1 {
+		return errors.New("usage: serverdog-agent install-tool <uv|bun>")
+	}
+
+	tool, known := tools.Named(args[0])
+	if !known {
+		return fmt.Errorf("unknown tool %q: choose uv or bun", args[0])
+	}
+
+	if err := toolInstaller(paths.Paths{Root: "/"}).Install(context.Background(), tool); err != nil {
+		return err
+	}
+
+	fmt.Printf("%s %s installed.\n", tool.Name, tool.Version)
 
 	return nil
 }

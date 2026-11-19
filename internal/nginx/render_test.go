@@ -166,6 +166,19 @@ func TestServedFilesMustBeOwnedLikeTheirLinks(t *testing.T) {
 	}
 }
 
+func TestAPythonSiteIsProxiedLikeANodeSite(t *testing.T) {
+	python := string(Render(Input{Site: base(site.Python)}))
+
+	for _, line := range []string{"include /etc/nginx/serverdog/upstreams/abcdefghijkl.conf;", "proxy_pass http://serverdog_abcdefghijkl;"} {
+		if !strings.Contains(python, line) {
+			t.Errorf("python config lacks %q:\n%s", line, python)
+		}
+	}
+	if strings.Contains(python, "fastcgi_pass") {
+		t.Errorf("python config passes to PHP:\n%s", python)
+	}
+}
+
 func TestThePlaceholderIsServedForEveryRuntime(t *testing.T) {
 	for _, runtime := range []site.Runtime{site.PHP, site.Node, site.Static} {
 		config := string(Render(Input{Site: base(runtime), Placeholder: true}))
