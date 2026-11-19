@@ -8,15 +8,19 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"regexp"
+	"runtime"
 	"slices"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/catnapstudio/serverdog-agent/internal/advisories"
 	"github.com/catnapstudio/serverdog-agent/internal/apply"
 	"github.com/catnapstudio/serverdog-agent/internal/paths"
 	"github.com/catnapstudio/serverdog-agent/internal/site"
@@ -45,6 +49,9 @@ const (
 	document = "update_settings"
 	// ConfFile is read after Ubuntu's 50unattended-upgrades; apt adds its list entries to that file's.
 	ConfFile = "/etc/apt/apt.conf.d/52serverdog-updates"
+
+	// SecuritySourcesFile adds Ubuntu's own security archive next to a provider's mirror, which can lag it by hours.
+	SecuritySourcesFile = "/etc/apt/sources.list.d/serverdog-ubuntu-security.sources"
 
 	stampFile      = "/var/lib/apt/periodic/unattended-upgrades-stamp"
 	rebootFile     = "/var/run/reboot-required"
@@ -123,7 +130,78 @@ func (m *Manager) Apply(ctx context.Context) error {
 		return err
 	}
 
-	return m.write(ctx, settings)
+	return errors.Join(m.write(ctx, settings), m.securitySources(ctx))
+}
+
+// securitySources makes sure apt can get security fixes from Ubuntu as soon as they're published. Provider images
+// (Hetzner and others) point the security pocket at their own mirror; apt takes the newest version from either
+// source, and a server that can't reach Ubuntu still has the mirror.
+func (m *Manager) securitySources(ctx context.Context) error {
+	release := advisories.Release(m.Paths)
+	if release == "" {
+		return nil
+	}
+
+	file := m.Paths.File(SecuritySourcesFile)
+	content := SecuritySources(release, runtime.GOARCH)
+	current, readErr := os.ReadFile(file)
+
+	if m.officialSecurityConfigured(file, content) {
+		if readErr != nil {
+			return nil
+		}
+
+		_, err := m.Applier.Apply(ctx, apply.Plan{Files: []apply.File{{Path: file, Remove: true}}})
+
+		return err
+	}
+
+	if bytes.Equal(current, content) {
+		return nil
+	}
+
+	_, err := m.Applier.Apply(ctx, apply.Plan{
+		Files:  []apply.File{{Path: file, Content: content}},
+		Checks: []system.Command{{Name: "apt-cache", Args: []string{"policy"}}},
+	})
+
+	return err
+}
+
+// officialSecurityConfigured reports whether a source other than ours already uses Ubuntu's own security archive.
+func (m *Manager) officialSecurityConfigured(ours string, content []byte) bool {
+	host := "security.ubuntu.com"
+	if strings.Contains(string(content), "ports.ubuntu.com") {
+		host = "ports.ubuntu.com"
+	}
+
+	lists, _ := filepath.Glob(m.Paths.File("/etc/apt/sources.list.d/*"))
+	for _, list := range append(lists, m.Paths.File("/etc/apt/sources.list")) {
+		if list == ours {
+			continue
+		}
+		if found, _ := os.ReadFile(list); bytes.Contains(found, []byte(host)) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// SecuritySources is the deb822 source for Ubuntu's security pocket; arm64 lives on the ports archive.
+func SecuritySources(release, arch string) []byte {
+	uri := "http://security.ubuntu.com/ubuntu"
+	if arch != "amd64" && arch != "386" {
+		uri = "http://ports.ubuntu.com/ubuntu-ports"
+	}
+
+	return []byte(fmt.Sprintf(`# Written by ServerDog: Ubuntu's own security archive, so fixes arrive before a provider's mirror syncs.
+Types: deb
+URIs: %s
+Suites: %s-security
+Components: main universe restricted multiverse
+Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+`, uri, release))
 }
 
 func (m *Manager) write(ctx context.Context, settings Settings) error {

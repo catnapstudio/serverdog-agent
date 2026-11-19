@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -152,5 +153,51 @@ func TestRebootWatcherPostsOncePerPendingRestart(t *testing.T) {
 	check()
 	if len(posts) != 2 {
 		t.Fatalf("posted %q", posts)
+	}
+}
+
+func TestApplyAddsUbuntusSecurityArchiveNextToAMirror(t *testing.T) {
+	m, fake := newManager(t)
+	ctx := context.Background()
+	write := func(path, content string) {
+		t.Helper()
+		full := m.Paths.File(path)
+		if err := os.MkdirAll(filepath.Dir(full), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(full, []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	write("/etc/os-release", "ID=ubuntu\nVERSION_CODENAME=resolute\n")
+	write("/etc/apt/sources.list.d/ubuntu.sources", "URIs: https://mirror.hetzner.com/ubuntu/security\nSuites: resolute-security\n")
+
+	if err := m.Apply(ctx); err != nil {
+		t.Fatal(err)
+	}
+	written, _ := os.ReadFile(m.Paths.File(SecuritySourcesFile))
+	if !strings.Contains(string(written), "Suites: resolute-security") || !strings.Contains(string(written), "ubuntu.com") {
+		t.Fatalf("wrote\n%s", written)
+	}
+	if !slices.ContainsFunc(fake.Calls(), func(c system.Command) bool { return c.Name == "apt-cache" }) {
+		t.Error("the new source wasn't checked")
+	}
+
+	// Once the image itself uses Ubuntu's archive, ours would only duplicate it.
+	write("/etc/apt/sources.list.d/ubuntu.sources", "URIs: http://security.ubuntu.com/ubuntu http://ports.ubuntu.com/ubuntu-ports\n")
+	if err := m.Apply(ctx); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(m.Paths.File(SecuritySourcesFile)); !os.IsNotExist(err) {
+		t.Errorf("the duplicate source stayed: %v", err)
+	}
+}
+
+func TestSecuritySourcesPicksTheArchiveForTheArchitecture(t *testing.T) {
+	if got := string(SecuritySources("noble", "amd64")); !strings.Contains(got, "URIs: http://security.ubuntu.com/ubuntu\n") {
+		t.Errorf("amd64:\n%s", got)
+	}
+	if got := string(SecuritySources("noble", "arm64")); !strings.Contains(got, "URIs: http://ports.ubuntu.com/ubuntu-ports\n") {
+		t.Errorf("arm64:\n%s", got)
 	}
 }
