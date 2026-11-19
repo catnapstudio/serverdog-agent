@@ -185,6 +185,10 @@ func ubuntu(t *testing.T, notices []Notice) (*httptest.Server, *int) {
 			json.NewEncoder(w).Encode(map[string]string{"id": strings.TrimSuffix(cve, ".json"), "priority": priority})
 			return
 		}
+		if r.URL.Path == "/missing" {
+			http.NotFound(w, r)
+			return
+		}
 		if r.URL.Path == "/kev" {
 			json.NewEncoder(w).Encode(map[string]any{"vulnerabilities": []map[string]string{{"cveID": "CVE-2026-2"}, {"cveID": "CVE-2020-9"}}})
 			return
@@ -330,6 +334,20 @@ func TestEnrichRatesOnlyNewCVEsAndKeepsTheExploitedListADay(t *testing.T) {
 	feed.Now = func() time.Time { return now.Add(25 * time.Hour) }
 	if err := feed.Enrich(context.Background()); err != nil || asked["/kev"] != 2 {
 		t.Errorf("a day later: %v, asked %v", err, asked)
+	}
+
+	// An exploited list that can't be had doesn't stop the ratings.
+	fresh := newFeed(t, server.URL)
+	fresh.ExploitedURL = server.URL + "/missing"
+	write(t, fresh.Paths.Root, "/var/lib/dpkg/status", "Package: nginx\nStatus: install ok installed\nVersion: 1.28.3-2ubuntu1.12\n")
+	if err := fresh.Refresh(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	if err := fresh.Enrich(context.Background()); err == nil {
+		t.Error("a failed download wasn't reported")
+	}
+	if findings, _ := fresh.Exposure(); len(findings) != 1 || findings[0].Priority != "high" {
+		t.Errorf("rated despite the failure = %+v", findings)
 	}
 }
 

@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -25,11 +26,12 @@ import (
 )
 
 // DefaultURL is Ubuntu's notice list, CVEURL its page for one CVE, and ExploitedURL CISA's catalogue of
-// vulnerabilities known to be exploited (KEV).
+// vulnerabilities known to be exploited (KEV). The catalogue comes from CISA's own GitHub repository: cisa.gov answers
+// 403 to datacenter addresses.
 const (
 	DefaultURL   = "https://ubuntu.com/security/notices.json"
 	CVEURL       = "https://ubuntu.com/security/cves/"
-	ExploitedURL = "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
+	ExploitedURL = "https://raw.githubusercontent.com/cisagov/kev-data/main/known_exploited_vulnerabilities.json"
 )
 
 const (
@@ -515,23 +517,27 @@ type exploitedList struct {
 }
 
 // Enrich keeps CISA's exploited list at most a day old and asks Ubuntu for the rating of the CVEs the server is
-// exposed to that it doesn't know yet. Ratings are kept: Ubuntu rarely changes one once a fix is out.
+// exposed to that it doesn't know yet. Ratings are kept: Ubuntu rarely changes one once a fix is out. Either failing
+// leaves the other done.
 func (f *Feed) Enrich(ctx context.Context) error {
+	return errors.Join(f.refreshExploited(ctx), f.rate(ctx))
+}
+
+func (f *Feed) refreshExploited(ctx context.Context) error {
 	known, revision, err := documentRevision[exploitedList](f.Store, exploitedDocument)
-	if err != nil {
+	if err != nil || f.Now().Sub(known.Fetched) < exploitedEvery {
 		return err
 	}
 
-	if f.Now().Sub(known.Fetched) >= exploitedEvery {
-		cves, err := f.exploited(ctx)
-		if err != nil {
-			return fmt.Errorf("CISA's exploited list: %w", err)
-		}
-		if err := putDocument(f.Store, exploitedDocument, exploitedList{Fetched: f.Now(), CVEs: cves}, revision); err != nil {
-			return err
-		}
+	cves, err := f.exploited(ctx)
+	if err != nil {
+		return fmt.Errorf("CISA's exploited list: %w", err)
 	}
 
+	return putDocument(f.Store, exploitedDocument, exploitedList{Fetched: f.Now(), CVEs: cves}, revision)
+}
+
+func (f *Feed) rate(ctx context.Context) error {
 	findings, err := f.match()
 	if err != nil {
 		return err
