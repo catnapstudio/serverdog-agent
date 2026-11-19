@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
+	"path/filepath"
 	"regexp"
 	"slices"
 	"strconv"
@@ -18,6 +20,7 @@ import (
 
 	"golang.org/x/sys/unix"
 
+	"github.com/catnapstudio/serverdog-agent/internal/advisories"
 	"github.com/catnapstudio/serverdog-agent/internal/dotenv"
 	"github.com/catnapstudio/serverdog-agent/internal/paths"
 	"github.com/catnapstudio/serverdog-agent/internal/servicectl"
@@ -35,6 +38,8 @@ const (
 	OutOfMemory         = "out_of_memory"
 	DiskAlmostFull      = "disk_almost_full"
 	RestartPending      = "restart_pending"
+	ServiceOutdated     = "service_outdated"
+	SecurityUpdate      = "security_update"
 	FirewallInactive    = "firewall_inactive"
 	LaravelDebug        = "laravel_debug"
 	LaravelQueueNoWork  = "laravel_queue_without_worker"
@@ -105,6 +110,10 @@ type Scanner struct {
 	RestartService      func(ctx context.Context, unit string) error
 	// RebootRequired reports since when an installed update has waited for a restart.
 	RebootRequired func() (time.Time, bool)
+	// Security returns what Ubuntu's security notices say the server is exposed to; nil skips the check.
+	Security func() ([]advisories.Finding, error)
+	// Upgrade installs the updates of installed packages.
+	Upgrade func(ctx context.Context, packages []string) error
 	// Disk returns the root filesystem's size and what is free on it, in bytes; zeros when it can't be read.
 	Disk func() (total, free uint64)
 	Now  func() time.Time
@@ -156,8 +165,10 @@ func (s *Scanner) Fix(ctx context.Context, kind, subject, actor string) error {
 	switch kind {
 	case PHPWorkersExhausted:
 		return s.raiseWorkers(ctx, insight, actor)
-	case ServiceFailed:
+	case ServiceFailed, ServiceOutdated:
 		return s.RestartService(ctx, subject)
+	case SecurityUpdate:
+		return s.upgrade(ctx, insight)
 	case ClockUnsynced:
 		return s.run(ctx, "Couldn't turn time synchronisation on.", "timedatectl", "set-ntp", "true")
 	case NoSwap:
@@ -188,6 +199,12 @@ func (s *Scanner) scan(ctx context.Context) ([]Insight, bool) {
 	found = append(found, s.endOfLife(sites)...)
 	found = append(found, s.memory(ctx, memory)...)
 	found = append(found, s.system(ctx)...)
+	found = append(found, s.outdated()...)
+	found = append(found, s.security()...)
+	// A kernel's security fixes waiting for the restart say more than how long it waited.
+	if slices.ContainsFunc(found, func(i Insight) bool { return i.Kind == SecurityUpdate && i.Values["state"] == "restart" }) {
+		found = slices.DeleteFunc(found, func(i Insight) bool { return i.Kind == RestartPending })
+	}
 	found = append(found, s.laravel(ctx, sites)...)
 
 	return found, !s.skipped && ctx.Err() == nil
@@ -455,6 +472,172 @@ func (s *Scanner) system(ctx context.Context) []Insight {
 	}
 
 	return found
+}
+
+// upgrade installs a security update, then checks it took: apt finishes without error when its mirror hasn't got the
+// fix yet, which would otherwise look fixed.
+func (s *Scanner) upgrade(ctx context.Context, insight Insight) error {
+	if err := s.Upgrade(ctx, strings.Fields(insight.Values["packages"])); err != nil {
+		return err
+	}
+
+	findings, err := s.Security()
+	if err != nil {
+		return err
+	}
+
+	for _, finding := range findings {
+		if finding.Source == insight.Subject && !finding.Restart && len(finding.Packages) > 0 {
+			return &Error{Summary: fmt.Sprintf("This server's Ubuntu mirror doesn't have the fix for %s yet, so apt found nothing to install. Mirrors usually catch up within hours; try again later.", insight.Subject)}
+		}
+	}
+
+	return nil
+}
+
+// security reports each source package the server is exposed through, with the notices, their CVEs and what to do:
+// "update" (installable now), "restart" (a kernel fix installed but not running) or "pro" (only in Ubuntu Pro).
+func (s *Scanner) security() []Insight {
+	if s.Security == nil {
+		return nil
+	}
+
+	findings, err := s.Security()
+	if err != nil {
+		s.skipped = true
+
+		return nil
+	}
+
+	var found []Insight
+	for _, finding := range findings {
+		var ids []string
+		for _, notice := range finding.Notices[:min(len(finding.Notices), 3)] {
+			ids = append(ids, notice.ID)
+		}
+		cves := finding.CVEs()
+
+		state := "update"
+		switch {
+		case finding.Restart:
+			state = "restart"
+		case finding.Pro:
+			state = "pro"
+		}
+
+		found = append(found, Insight{Kind: SecurityUpdate, Subject: finding.Source, Fixable: state == "update" && len(finding.Packages) > 0, Values: map[string]string{
+			"state":        state,
+			"notices":      strings.Join(ids, ", "),
+			"notice_count": strconv.Itoa(len(finding.Notices)),
+			"title":        finding.Notices[0].Title,
+			"published":    finding.Notices[0].Published.Format(time.DateOnly),
+			"cves":         strings.Join(cves[:min(len(cves), 5)], ", "),
+			"cve_count":    strconv.Itoa(len(cves)),
+			"packages":     strings.Join(finding.Packages, " "),
+			// Ubuntu's highest rating among the CVEs, and those CISA lists as exploited in the wild.
+			"priority":        finding.Priority,
+			"exploited":       strings.Join(finding.Exploited[:min(len(finding.Exploited), 3)], ", "),
+			"exploited_count": strconv.Itoa(len(finding.Exploited)),
+		}})
+	}
+
+	return found
+}
+
+// packagedRoots are where packages install code. A deleted file elsewhere (shared memory, a memfd) isn't an update.
+var packagedRoots = []string{"/usr/", "/lib/", "/lib64/", "/bin/", "/sbin/", "/opt/"}
+
+// mapsLimit bounds the memory map read of one process.
+const mapsLimit = 1 << 20
+
+// outdated reports the services ServerDog knows that still run a program or library an update replaced: the update,
+// often a security fix, isn't in effect in them until they restart. Only /proc is read, and only the memory maps of
+// processes in those services.
+func (s *Scanner) outdated() []Insight {
+	processes, _ := filepath.Glob(s.Paths.File("/proc/[0-9]*"))
+
+	replaced := map[string][]string{}
+	for _, process := range processes {
+		unit := service(process)
+		if unit == "" {
+			continue
+		}
+
+		for _, file := range deletedCode(process) {
+			if !slices.Contains(replaced[unit], file) {
+				replaced[unit] = append(replaced[unit], file)
+			}
+		}
+	}
+
+	var found []Insight
+	for unit, files := range replaced {
+		slices.Sort(files)
+		found = append(found, Insight{Kind: ServiceOutdated, Subject: unit, Fixable: true, Values: map[string]string{
+			"files": strings.Join(files[:min(len(files), 3)], ", "),
+			"count": strconv.Itoa(len(files)),
+		}})
+	}
+	slices.SortFunc(found, func(a, b Insight) int { return strings.Compare(a.Subject, b.Subject) })
+
+	return found
+}
+
+// service returns the known service a process runs in, from its cgroup ("0::/system.slice/nginx.service"), or "".
+func service(process string) string {
+	content, err := os.ReadFile(filepath.Join(process, "cgroup"))
+	if err != nil {
+		return ""
+	}
+
+	for _, line := range strings.Split(string(content), "\n") {
+		_, group, found := strings.Cut(line, "::")
+		if !found || !strings.HasPrefix(group, "/system.slice/") {
+			continue
+		}
+
+		if unit, ok := strings.CutSuffix(path.Base(group), ".service"); ok && servicectl.Known(unit) {
+			return unit
+		}
+	}
+
+	return ""
+}
+
+// deletedCode returns the names of the packaged files a process still maps although they were deleted, as apt does
+// when it replaces them: "libssl.so.3".
+func deletedCode(process string) []string {
+	var names []string
+	add := func(file string) {
+		file, deleted := strings.CutSuffix(file, " (deleted)")
+		if !deleted || !slices.ContainsFunc(packagedRoots, func(root string) bool { return strings.HasPrefix(file, root) }) {
+			return
+		}
+
+		if name := path.Base(file); !slices.Contains(names, name) {
+			names = append(names, name)
+		}
+	}
+
+	if program, err := os.Readlink(filepath.Join(process, "exe")); err == nil {
+		add(program)
+	}
+
+	opened, err := os.Open(filepath.Join(process, "maps"))
+	if err != nil {
+		return names
+	}
+	defer opened.Close()
+
+	content, _ := io.ReadAll(io.LimitReader(opened, mapsLimit))
+	for _, line := range strings.Split(string(content), "\n") {
+		// "7f…-7f… r-xp 00000000 fc:01 1234  /usr/lib/x86_64-linux-gnu/libssl.so.3 (deleted)"
+		if fields := strings.Fields(line); len(fields) >= 6 {
+			add(strings.Join(fields[5:], " "))
+		}
+	}
+
+	return names
 }
 
 var (

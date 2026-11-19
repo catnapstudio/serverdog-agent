@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/catnapstudio/serverdog-agent/internal/advisories"
 	"github.com/catnapstudio/serverdog-agent/internal/paths"
 	"github.com/catnapstudio/serverdog-agent/internal/site"
 	"github.com/catnapstudio/serverdog-agent/internal/system"
@@ -413,5 +414,100 @@ func TestTailReadsOnlyTheEnd(t *testing.T) {
 	}
 	if got := tail(filepath.Join(t.TempDir(), "missing"), 5); got != nil {
 		t.Fatalf("tail of a missing file %q", got)
+	}
+}
+
+// process writes a fake /proc entry: its cgroup, the program it runs and its memory map.
+func (s *server) process(pid, cgroup, program string, mapped ...string) {
+	dir := "/proc/" + pid
+	s.write(dir+"/cgroup", "0::"+cgroup+"\n")
+	if err := os.Symlink(program, filepath.Join(s.root, dir, "exe")); err != nil {
+		s.t.Fatal(err)
+	}
+
+	var maps strings.Builder
+	for _, file := range mapped {
+		maps.WriteString("7f0000000000-7f0000001000 r-xp 00000000 fc:01 1234                       " + file + "\n")
+	}
+	s.write(dir+"/maps", maps.String())
+}
+
+func TestAServiceStillRunningReplacedCodeIsReported(t *testing.T) {
+	s := healthy(t)
+	s.process("100", "/system.slice/nginx.service", "/usr/sbin/nginx", "/usr/lib/x86_64-linux-gnu/libssl.so.3 (deleted)", "/usr/lib/x86_64-linux-gnu/libc.so.6")
+	s.process("101", "/system.slice/nginx.service", "/usr/sbin/nginx", "/usr/lib/x86_64-linux-gnu/libssl.so.3 (deleted)", "/usr/lib/x86_64-linux-gnu/libcrypto.so.3 (deleted)")
+	s.process("200", "/system.slice/php8.5-fpm.service", "/usr/sbin/php-fpm8.5 (deleted)")
+	// Not code an update replaced, or not a service ServerDog knows.
+	s.process("300", "/system.slice/redis-server.service", "/usr/bin/redis-server", "/dev/zero (deleted)", "/memfd:jit (deleted)")
+	s.process("400", "/system.slice/serverdog-agent.service", "/usr/local/bin/serverdog-agent", "/usr/lib/x86_64-linux-gnu/libssl.so.3 (deleted)")
+	s.process("500", "/user.slice/user-0.slice/session-1.scope", "/usr/bin/bash", "/usr/lib/x86_64-linux-gnu/libc.so.6 (deleted)")
+
+	found := s.scan()
+	if got := strings.Join(kinds(found), " "); got != "service_outdated:nginx service_outdated:php8.5-fpm" {
+		t.Fatalf("found %s", got)
+	}
+
+	nginx := found[0]
+	if !nginx.Fixable || nginx.Values["files"] != "libcrypto.so.3, libssl.so.3" || nginx.Values["count"] != "2" {
+		t.Errorf("nginx = %+v", nginx)
+	}
+	if found[1].Values["files"] != "php-fpm8.5" {
+		t.Errorf("php = %+v", found[1])
+	}
+
+	var restarted string
+	s.scanner.RestartService = func(_ context.Context, unit string) error { restarted = unit; return nil }
+	if err := s.scanner.Fix(context.Background(), ServiceOutdated, "nginx", "Mac"); err != nil || restarted != "nginx" {
+		t.Fatalf("restarted %q, %v", restarted, err)
+	}
+	if err := s.scanner.Fix(context.Background(), ServiceOutdated, "redis-server", "Mac"); !errors.Is(err, ErrGone) {
+		t.Errorf("fixing a service that runs current code = %v", err)
+	}
+}
+
+func TestSecurityNoticesAreReportedAndUpdated(t *testing.T) {
+	s := healthy(t)
+	published := time.Date(2026, 11, 19, 5, 21, 0, 0, time.UTC)
+	upgraded := false
+	s.scanner.Security = func() ([]advisories.Finding, error) {
+		kernel := advisories.Finding{Source: "linux", Restart: true, Notices: []advisories.Notice{{ID: "USN-9018-1", Published: published, CVEs: []string{"CVE-2026-3"}}, {ID: "USN-8959-1", CVEs: []string{"CVE-2026-3", "CVE-2026-4"}}}}
+		if upgraded {
+			return []advisories.Finding{kernel}, nil
+		}
+
+		return []advisories.Finding{
+			{Source: "nginx", Packages: []string{"nginx", "nginx-common"}, Priority: "high", Exploited: []string{"CVE-2026-2"}, Notices: []advisories.Notice{{ID: "USN-9159-1", Title: "nginx vulnerabilities", Published: published, CVEs: []string{"CVE-2026-1", "CVE-2026-2"}}}},
+			kernel,
+		}, nil
+	}
+	s.scanner.RebootRequired = func() (time.Time, bool) { return now.Add(-5 * 24 * time.Hour), true }
+
+	found := s.scan()
+	if got := strings.Join(kinds(found), " "); got != "security_update:nginx security_update:linux" {
+		t.Fatalf("found %s", got)
+	}
+
+	nginx, kernel := found[0], found[1]
+	if !nginx.Fixable || nginx.Values["state"] != "update" || nginx.Values["notices"] != "USN-9159-1" || nginx.Values["cves"] != "CVE-2026-1, CVE-2026-2" || nginx.Values["packages"] != "nginx nginx-common" || nginx.Values["published"] != "2026-11-19" || nginx.Values["priority"] != "high" || nginx.Values["exploited"] != "CVE-2026-2" || nginx.Values["exploited_count"] != "1" {
+		t.Errorf("nginx = %+v", nginx)
+	}
+	if kernel.Fixable || kernel.Values["state"] != "restart" || kernel.Values["cve_count"] != "2" || kernel.Values["notice_count"] != "2" {
+		t.Errorf("kernel = %+v", kernel)
+	}
+
+	var packages []string
+	s.scanner.Upgrade = func(_ context.Context, names []string) error { packages, upgraded = names, true; return nil }
+	if err := s.scanner.Fix(context.Background(), SecurityUpdate, "nginx", "Mac"); err != nil || strings.Join(packages, " ") != "nginx nginx-common" {
+		t.Fatalf("upgraded %q, %v", packages, err)
+	}
+	if err := s.scanner.Fix(context.Background(), SecurityUpdate, "linux", "Mac"); !errors.Is(err, ErrGone) {
+		t.Errorf("a fix waiting for a restart = %v", err)
+	}
+
+	// apt succeeds with nothing to install when the mirror is behind; the fix must say so rather than look done.
+	upgraded = false
+	s.scanner.Upgrade = func(context.Context, []string) error { return nil }
+	if err := s.scanner.Fix(context.Background(), SecurityUpdate, "nginx", "Mac"); err == nil || !strings.Contains(err.Error(), "mirror doesn't have the fix") {
+		t.Errorf("an upgrade that changed nothing = %v", err)
 	}
 }

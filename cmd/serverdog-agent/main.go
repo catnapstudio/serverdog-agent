@@ -26,6 +26,7 @@ import (
 
 	agentv1 "github.com/catnapstudio/serverdog-agent/gen/serverdog/agent/v1"
 	"github.com/catnapstudio/serverdog-agent/internal/acmeclient"
+	"github.com/catnapstudio/serverdog-agent/internal/advisories"
 	"github.com/catnapstudio/serverdog-agent/internal/agentconfig"
 	"github.com/catnapstudio/serverdog-agent/internal/apply"
 	"github.com/catnapstudio/serverdog-agent/internal/backups"
@@ -158,6 +159,7 @@ func run(socket, stateDir, root string, logger *slog.Logger) error {
 	p := paths.Paths{Root: root}
 	exec := system.Exec{}
 	applier := apply.Applier{Runner: exec, LockPath: p.File(paths.ApplyLock)}
+	securityNotices := &advisories.Feed{Store: store, Paths: p, Client: &http.Client{Timeout: time.Minute}, URL: advisories.DefaultURL, Now: time.Now}
 	guard := portguard.Default()
 	detector := capabilities.Detector{Root: root, Runner: exec, InterfaceAddrs: net.InterfaceAddrs, PortGuardAttached: guard.Attached}
 	locks := &lock.Keyed{}
@@ -309,6 +311,10 @@ func run(socket, stateDir, root string, logger *slog.Logger) error {
 
 				return since, required
 			},
+			Security: securityNotices.Exposure,
+			Upgrade: func(ctx context.Context, packages []string) error {
+				return advisories.Upgrade(ctx, exec, packages)
+			},
 		},
 		FrankenPHP: &frankenphp.Installer{
 			Paths: p, Client: &http.Client{Timeout: 15 * time.Minute}, Arch: runtime.GOARCH,
@@ -374,6 +380,8 @@ func run(socket, stateDir, root string, logger *slog.Logger) error {
 		Updates: automaticUpdates, Post: notifications.Alert, Host: notify.Hostname, Now: time.Now, Logger: logger,
 	}
 	running.Go(func() { rebootWatcher.Run(background, time.Hour) })
+	securityWatcher := &advisories.Watcher{Feed: securityNotices, Post: notifications.Alert, Host: notify.Hostname, Logger: logger}
+	running.Go(func() { securityWatcher.Run(background, 6*time.Hour) })
 	jobWatcher := &jobs.Watcher{
 		Jobs: scheduledJobs,
 		Enabled: func() bool {
